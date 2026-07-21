@@ -1,0 +1,69 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        working-directory: src
+        run: dotnet restore
+
+      - name: Run tests
+        id: tests
+        working-directory: src
+        run: dotnet test --no-restore --logger "trx;LogFileName=test-results.trx" --results-directory ../TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/
+
+      - name: Publish test summary
+        if: always()
+        run: |
+          echo "## Test Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${{ steps.tests.outcome }}" = "success" ]; then
+            echo "- Status: ✅ Passed" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ steps.tests.outcome }}" = "failure" ]; then
+            echo "- Status: ❌ Failed" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Status: ⚠️ ${{ steps.tests.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "- Artifact: \`test-results\`" >> "$GITHUB_STEP_SUMMARY"
+
+          if ls TestResults/*.trx >/dev/null 2>&1; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "### TRX Files" >> "$GITHUB_STEP_SUMMARY"
+
+            for file in TestResults/*.trx; do
+              echo "- \`$(basename "$file")\`" >> "$GITHUB_STEP_SUMMARY"
+            done
+          else
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "No TRX test result files were found." >> "$GITHUB_STEP_SUMMARY"
+          fi
