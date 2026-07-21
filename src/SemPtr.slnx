@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="SemPtr.SourceGeneration.Common/SemPtr.SourceGeneration.Common.shproj" Id="3ec8880f-a6a9-4901-b06f-c2552b9c1bb4" />
+    <Project Path="SemPtr.SourceGeneration/SemPtr.SourceGeneration.csproj" Id="4c861368-da74-41e0-9f93-a063d99d6eed" />
+    <Project Path="SemPtr/SemPtr.csproj" Id="e07d7a2e-5d23-42a0-af5f-d0dd48786491" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="../tests/SemPtr.Tests.SourceGeneration/SemPtr.Tests.SourceGeneration.csproj" Id="f214b8ba-d991-4f4a-b28e-37f37f7cecf8" />
+    <Project Path="../tests/SemPtr.Tests/SemPtr.Tests.csproj" Id="be4ef4cc-8dba-4854-8dc3-ddd57de6a52f" />
+  </Folder>
+</Solution>

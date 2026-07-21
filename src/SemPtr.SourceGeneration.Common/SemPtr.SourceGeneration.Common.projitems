@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>3ec8880f-a6a9-4901-b06f-c2552b9c1bb4</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>SemPtr.SourceGeneration.Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Accessibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Config.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConversionKind.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Nullability.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Persistency.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PointerCharacteristics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sequencability.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.IsExternalInit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.RequiredMemberAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Typeability.cs" />
+  </ItemGroup>
+</Project>
