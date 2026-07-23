@@ -34,8 +34,8 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
-					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.IPointer.DefaultFormatString, CultureInfo.InvariantCulture);
+					var pointer = {{typeName}}.FromRaw(raw);
+					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.Internal.PointerFormat.DefaultFormatString, CultureInfo.InvariantCulture);
 					Assert.Equal(expected, pointer.ToString());
 				}
 
@@ -44,8 +44,8 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
-					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.IPointer.DefaultFormatString, CultureInfo.InvariantCulture);
+					var pointer = {{typeName}}.FromRaw(raw);
+					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.Internal.PointerFormat.DefaultFormatString, CultureInfo.InvariantCulture);
 					Assert.Equal(expected, pointer.ToString(CultureInfo.InvariantCulture));
 				}
 
@@ -54,7 +54,7 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
+					var pointer = {{typeName}}.FromRaw(raw);
 					var expected = ((nuint)raw).ToString("X4", CultureInfo.InvariantCulture);
 					Assert.Equal(expected, pointer.ToString("X4"));
 				}
@@ -64,7 +64,7 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
+					var pointer = {{typeName}}.FromRaw(raw);
 					var expected = ((nuint)raw).ToString("X4", CultureInfo.InvariantCulture);
 					Assert.Equal(expected, pointer.ToString("X4", CultureInfo.InvariantCulture));
 				}
@@ -74,8 +74,8 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
-					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.IPointer.DefaultFormatString, CultureInfo.InvariantCulture);
+					var pointer = {{typeName}}.FromRaw(raw);
+					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.Internal.PointerFormat.DefaultFormatString, CultureInfo.InvariantCulture);
 
 					global::System.Span<char> destination = stackalloc char[64];
 					var success = pointer.TryFormat(destination, out var charsWritten, CultureInfo.InvariantCulture);
@@ -88,7 +88,7 @@ partial class SourceGenerator
 				public unsafe void TryFormat_CharSpan_DestinationTooSmall_ReturnsFalse()
 				{
 					using var buffer = new NativeArray<int>(1);
-					var pointer = new {{typeName}}({{rawExpr}});
+					var pointer = {{typeName}}.FromRaw({{rawExpr}});
 
 					global::System.Span<char> destination = stackalloc char[1];
 					var success = pointer.TryFormat(destination, out var charsWritten);
@@ -102,7 +102,7 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
+					var pointer = {{typeName}}.FromRaw(raw);
 					var expected = ((nuint)raw).ToString("X4", CultureInfo.InvariantCulture);
 
 					global::System.Span<char> destination = stackalloc char[64];
@@ -117,8 +117,8 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
-					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.IPointer.DefaultFormatString, CultureInfo.InvariantCulture);
+					var pointer = {{typeName}}.FromRaw(raw);
+					var expected = "0x" + ((nuint)raw).ToString(global::SemPtr.Internal.PointerFormat.DefaultFormatString, CultureInfo.InvariantCulture);
 
 					global::System.Span<byte> destination = stackalloc byte[64];
 					var success = pointer.TryFormat(destination, out var bytesWritten, CultureInfo.InvariantCulture);
@@ -131,7 +131,7 @@ partial class SourceGenerator
 				public unsafe void TryFormat_ByteSpan_DestinationTooSmall_ReturnsFalse()
 				{
 					using var buffer = new NativeArray<int>(1);
-					var pointer = new {{typeName}}({{rawExpr}});
+					var pointer = {{typeName}}.FromRaw({{rawExpr}});
 
 					global::System.Span<byte> destination = stackalloc byte[1];
 					var success = pointer.TryFormat(destination, out var bytesWritten);
@@ -145,7 +145,7 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
+					var pointer = {{typeName}}.FromRaw(raw);
 					var expected = ((nuint)raw).ToString("X4", CultureInfo.InvariantCulture);
 
 					global::System.Span<byte> destination = stackalloc byte[64];

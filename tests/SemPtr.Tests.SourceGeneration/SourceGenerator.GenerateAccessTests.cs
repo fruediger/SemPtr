@@ -47,7 +47,7 @@ partial class SourceGenerator
 						{
 							using var buffer = new NativeArray<int>(1);
 							buffer[0] = 42;
-							var pointer = new {{typeName}}(buffer.Pointer);
+							var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 							Assert.Equal(42, pointer.Target);
 						}
 
@@ -55,7 +55,7 @@ partial class SourceGenerator
 						public unsafe void Target_Set_WritesValueToAddress()
 						{
 							using var buffer = new NativeArray<int>(1);
-							var pointer = new {{typeName}}(buffer.Pointer);
+							var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 							pointer.Target = 99;
 							Assert.Equal(99, buffer[0]);
 							Assert.Equal(99, pointer.Target);
@@ -74,7 +74,7 @@ partial class SourceGenerator
 								buffer[0] = 1;
 								buffer[1] = 2;
 								buffer[2] = 3;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 								Assert.Equal(2, pointer[(nint)1]);
 							}
 
@@ -85,7 +85,7 @@ partial class SourceGenerator
 								buffer[0] = 1;
 								buffer[1] = 2;
 								buffer[2] = 3;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 								Assert.Equal(3, pointer[(nuint)2]);
 							}
 
@@ -93,7 +93,7 @@ partial class SourceGenerator
 							public unsafe void Indexer_NintSet_WritesValueAtIndex()
 							{
 								using var buffer = new NativeArray<int>(3);
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 								pointer[(nint)1] = 7;
 								Assert.Equal(7, buffer[1]);
 							}
@@ -102,7 +102,7 @@ partial class SourceGenerator
 							public unsafe void Indexer_NuintSet_WritesValueAtIndex()
 							{
 								using var buffer = new NativeArray<int>(3);
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 								pointer[(nuint)2] = 11;
 								Assert.Equal(11, buffer[2]);
 							}
@@ -115,7 +115,7 @@ partial class SourceGenerator
 								buffer[1] = 20;
 								buffer[2] = 30;
 								buffer[3] = 40;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var span = pointer.AsSpan((nint)1, 2);
 
@@ -132,7 +132,7 @@ partial class SourceGenerator
 								buffer[1] = 20;
 								buffer[2] = 30;
 								buffer[3] = 40;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var span = pointer.AsSpan((nuint)1, 2);
 
@@ -148,7 +148,7 @@ partial class SourceGenerator
 								buffer[0] = 1;
 								buffer[1] = 2;
 								buffer[2] = 3;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var span = pointer.AsSpan(2);
 
@@ -169,7 +169,7 @@ partial class SourceGenerator
 						{
 							using var buffer = new NativeArray<int>(1);
 							buffer[0] = 123;
-							var pointer = new {{typeName}}(buffer.Pointer);
+							var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 							Assert.Equal(123, pointer.Target);
 						}
 
@@ -186,7 +186,7 @@ partial class SourceGenerator
 								buffer[0] = 1;
 								buffer[1] = 2;
 								buffer[2] = 3;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 								Assert.Equal(2, pointer[(nint)1]);
 							}
 
@@ -197,7 +197,7 @@ partial class SourceGenerator
 								buffer[0] = 1;
 								buffer[1] = 2;
 								buffer[2] = 3;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 								Assert.Equal(3, pointer[(nuint)2]);
 							}
 
@@ -209,7 +209,7 @@ partial class SourceGenerator
 								buffer[1] = 20;
 								buffer[2] = 30;
 								buffer[3] = 40;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var span = pointer.AsSpan((nint)1, 2);
 
@@ -226,7 +226,7 @@ partial class SourceGenerator
 								buffer[1] = 20;
 								buffer[2] = 30;
 								buffer[3] = 40;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var span = pointer.AsSpan((nuint)1, 2);
 
@@ -242,7 +242,7 @@ partial class SourceGenerator
 								buffer[0] = 1;
 								buffer[1] = 2;
 								buffer[2] = 3;
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var span = pointer.AsSpan(2);
 
@@ -262,7 +262,7 @@ partial class SourceGenerator
 						public unsafe void InitializeTarget_WritesValueAndReturnsRandomAccessPointer()
 						{
 							using var buffer = new NativeArray<int>(1);
-							var pointer = new {{typeName}}(buffer.Pointer);
+							var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 							var initialized = pointer.InitializeTarget(55);
 
@@ -281,7 +281,7 @@ partial class SourceGenerator
 							public unsafe void InitializeTarget_NintIndex_WritesValueAtIndexAndReturnsRandomAccessPointer()
 							{
 								using var buffer = new NativeArray<int>(3);
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var initialized = pointer.InitializeTarget((nint)1, 7);
 
@@ -293,7 +293,7 @@ partial class SourceGenerator
 							public unsafe void InitializeTarget_NuintIndex_WritesValueAtIndexAndReturnsRandomAccessPointer()
 							{
 								using var buffer = new NativeArray<int>(3);
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var initialized = pointer.InitializeTarget((nuint)2, 9);
 
@@ -305,7 +305,7 @@ partial class SourceGenerator
 							public unsafe void InitializeTargets_WritesAllValuesAndReturnsRandomAccessPointer()
 							{
 								using var buffer = new NativeArray<int>(3);
-								var pointer = new {{typeName}}(buffer.Pointer);
+								var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 
 								var initialized = pointer.InitializeTargets(new int[] { 4, 5, 6 });
 

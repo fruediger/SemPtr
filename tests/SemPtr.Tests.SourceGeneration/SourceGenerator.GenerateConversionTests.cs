@@ -63,7 +63,7 @@ partial class SourceGenerator
 					{
 						using var buffer = new NativeArray<int>(1);
 						var raw = {{fromRawExpr}};
-						var from = new {{fromTypeName}}(raw);
+						var from = {{fromTypeName}}.FromRaw(raw);
 						{{convertExpr}}
 						Assert.Equal((nint)raw, (nint)converted.Raw);
 					}
@@ -79,7 +79,7 @@ partial class SourceGenerator
 						[Fact]
 						public unsafe void To_{{toSafeName}}_NullPointer_PreservesNull()
 						{
-							var from = new {{fromTypeName}}(({{fromRawType}})null);
+							var from = {{fromTypeName}}.FromRaw(({{fromRawType}})null);
 							{{convertExpr}}
 							Assert.True(converted.Raw is null);
 						}

@@ -9,10 +9,12 @@ namespace SemPtr.Tests.SourceGeneration;
 partial class SourceGenerator
 {
 	/// <summary>
-	/// Generates tests mirroring <c>SourceGenerator.GeneratePointerDeclaration</c>: construction from a raw pointer (including the
-	/// non-<see langword="null"/> guard for non-nullable pointer types), the parameterless-constructor/<see langword="default"/>
-	/// prohibition for non-nullable pointer types, the <c>Null</c> property for nullable pointer types, <c>FromIntPtr</c>/<c>FromUIntPtr</c>,
-	/// <c>ToIntPtr</c>/<c>ToUIntPtr</c>, the <c>Raw</c> property, and the implicit/explicit conversions to and from the raw pointer type.
+	/// Generates tests mirroring <c>SourceGenerator.GeneratePointerDeclaration</c>: construction from a raw pointer via
+	/// <c>FromRaw</c> (including the non-<see langword="null"/> guard for non-nullable pointer types), the <c>Null</c>
+	/// property for nullable pointer types, <c>FromIntPtr</c>/<c>FromUIntPtr</c>, <c>AsIntPtr</c>/<c>AsUIntPtr</c>, the
+	/// <c>Raw</c> property, and the implicit/explicit conversions to and from the raw pointer type. Note that pointer
+	/// types no longer expose a public constructor - <c>FromRaw</c> is now the only supported way to create a pointer
+	/// from a raw pointer value.
 	/// </summary>
 	private static void GenerateDeclarationTests(IncrementalGeneratorPostInitializationContext pic, in PointerCharacteristics characteristics, StringBuilder builder)
 	{
@@ -31,20 +33,20 @@ partial class SourceGenerator
 			public sealed class {{className}}
 			{
 				[Fact]
-				public unsafe void Constructor_NonNullRawPointer_SetsRaw()
+				public unsafe void FromRaw_NonNullRawPointer_SetsRaw()
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
+					var pointer = {{typeName}}.FromRaw(raw);
 					Assert.Equal((nint)raw, (nint)pointer.Raw);
 				}
 
 				[Fact]
-				public unsafe void Raw_ReturnsSameAddressAsConstructorArgument()
+				public unsafe void Raw_ReturnsSameAddressAsFromRawArgument()
 				{
 					using var buffer = new NativeArray<int>(2);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
+					var pointer = {{typeName}}.FromRaw(raw);
 					Assert.True(pointer.Raw == raw);
 				}
 
@@ -55,8 +57,8 @@ partial class SourceGenerator
 			builder.Append($$"""
 
 					[Fact]
-					public unsafe void Constructor_NullRawPointer_ThrowsArgumentNullException()
-						=> Assert.Throws<ArgumentNullException>(() => new {{typeName}}(({{rawType}})null));
+					public unsafe void FromRaw_NullRawPointer_ThrowsArgumentNullException()
+						=> Assert.Throws<ArgumentNullException>(() => {{typeName}}.FromRaw(({{rawType}})null));
 
 					[Fact]
 					public void FromIntPtr_Zero_ThrowsArgumentNullException()
@@ -73,9 +75,9 @@ partial class SourceGenerator
 			builder.Append($$"""
 
 					[Fact]
-					public unsafe void Constructor_NullRawPointer_CreatesNullPointer()
+					public unsafe void FromRaw_NullRawPointer_CreatesNullPointer()
 					{
-						var pointer = new {{typeName}}(({{rawType}})null);
+						var pointer = {{typeName}}.FromRaw(({{rawType}})null);
 						Assert.True(pointer.Raw is null);
 						Assert.False(pointer.HasTarget);
 					}
@@ -126,21 +128,21 @@ partial class SourceGenerator
 				}
 
 				[Fact]
-				public unsafe void ToIntPtr_ReturnsSameAddressAsRaw()
+				public unsafe void AsIntPtr_ReturnsSameAddressAsRaw()
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
-					Assert.Equal((nint)raw, pointer.ToIntPtr());
+					var pointer = {{typeName}}.FromRaw(raw);
+					Assert.Equal((nint)raw, pointer.AsIntPtr);
 				}
 
 				[Fact]
-				public unsafe void ToUIntPtr_ReturnsSameAddressAsRaw()
+				public unsafe void AsUIntPtr_ReturnsSameAddressAsRaw()
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
-					Assert.Equal((nuint)raw, pointer.ToUIntPtr());
+					var pointer = {{typeName}}.FromRaw(raw);
+					Assert.Equal((nuint)raw, pointer.AsUIntPtr);
 				}
 
 				[Fact]
@@ -157,7 +159,7 @@ partial class SourceGenerator
 				{
 					using var buffer = new NativeArray<int>(1);
 					var raw = {{rawExpr}};
-					var pointer = new {{typeName}}(raw);
+					var pointer = {{typeName}}.FromRaw(raw);
 					var converted = ({{rawType}})pointer;
 					Assert.Equal((nint)raw, (nint)converted);
 				}

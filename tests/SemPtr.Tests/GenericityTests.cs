@@ -17,7 +17,8 @@ public sealed class GenericityTests
 		using var buffer = new NativeArray<SampleStruct>(1);
 		var value = new SampleStruct { Number = 42, Flag = 7, Ticks = 123456789L };
 
-		var pointer = new PersistentPointer<SampleStruct>(buffer.Pointer) { Target = value };
+		var pointer = PersistentPointer<SampleStruct>.FromRaw(buffer.Pointer);
+		pointer.Target = value;
 
 		Assert.Equal(value, pointer.Target);
 		Assert.Equal(value, buffer[0]);
@@ -34,7 +35,7 @@ public sealed class GenericityTests
 			new SampleStruct { Number = 3, Flag = 3, Ticks = 30 },
 		};
 
-		var pointer = new PersistentSequencePointer<SampleStruct>(buffer.Pointer);
+		var pointer = PersistentSequencePointer<SampleStruct>.FromRaw(buffer.Pointer);
 
 		for (var i = 0; i < values.Length; i++)
 		{
@@ -61,7 +62,7 @@ public sealed class GenericityTests
 			new SampleStruct { Number = 200, Flag = 0, Ticks = 2000 },
 		};
 
-		var pointer = new PersistentSequencePointerUninitialized<SampleStruct>(buffer.Pointer);
+		var pointer = PersistentSequencePointerUninitialized<SampleStruct>.FromRaw(buffer.Pointer);
 		var initialized = pointer.InitializeTargets(values);
 
 		Assert.Equal(values[0], buffer[0]);
@@ -75,7 +76,7 @@ public sealed class GenericityTests
 	{
 		using var buffer = new NativeArray<SampleStruct>(2);
 
-		var first = new PersistentSequencePointer<SampleStruct>(buffer.Pointer);
+		var first = PersistentSequencePointer<SampleStruct>.FromRaw(buffer.Pointer);
 		var second = first + 1;
 
 		Assert.NotEqual(first, second);

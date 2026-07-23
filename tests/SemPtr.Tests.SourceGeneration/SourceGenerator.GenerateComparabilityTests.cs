@@ -47,8 +47,8 @@ partial class SourceGenerator
 				public unsafe void CompareTo_SameAddress_ReturnsZero()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointerA = new {{typeName}}({{rawLow}});
-					var pointerB = new {{typeName}}({{rawLow}});
+					var pointerA = {{typeName}}.FromRaw({{rawLow}});
+					var pointerB = {{typeName}}.FromRaw({{rawLow}});
 					Assert.Equal(0, pointerA.CompareTo(pointerB));
 					Assert.False(pointerA < pointerB);
 					Assert.False(pointerA > pointerB);
@@ -60,8 +60,8 @@ partial class SourceGenerator
 				public unsafe void CompareTo_LowerAddress_ReturnsNegative()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointerLow = new {{typeName}}({{rawLow}});
-					var pointerHigh = new {{typeName}}({{rawHigh}});
+					var pointerLow = {{typeName}}.FromRaw({{rawLow}});
+					var pointerHigh = {{typeName}}.FromRaw({{rawHigh}});
 					Assert.True(pointerLow.CompareTo(pointerHigh) < 0);
 					Assert.True(pointerLow < pointerHigh);
 					Assert.False(pointerLow > pointerHigh);
@@ -73,8 +73,8 @@ partial class SourceGenerator
 				public unsafe void CompareTo_HigherAddress_ReturnsPositive()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointerLow = new {{typeName}}({{rawLow}});
-					var pointerHigh = new {{typeName}}({{rawHigh}});
+					var pointerLow = {{typeName}}.FromRaw({{rawLow}});
+					var pointerHigh = {{typeName}}.FromRaw({{rawHigh}});
 					Assert.True(pointerHigh.CompareTo(pointerLow) > 0);
 					Assert.False(pointerHigh < pointerLow);
 					Assert.True(pointerHigh > pointerLow);
@@ -86,8 +86,8 @@ partial class SourceGenerator
 				public unsafe void CompareTo_NullablePointerReadOnly_ComparesByAddress()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointerLow = new {{typeName}}({{rawLow}});
-					var other = new {{nproTypeName}}((void*){{rawHigh}});
+					var pointerLow = {{typeName}}.FromRaw({{rawLow}});
+					var other = {{nproTypeName}}.FromRaw((void*){{rawHigh}});
 					Assert.True(pointerLow.CompareTo(other) < 0);
 					Assert.True(pointerLow < other);
 					Assert.False(pointerLow > other);
@@ -99,8 +99,8 @@ partial class SourceGenerator
 				public unsafe void CompareTo_NullablePointerUninitialized_ComparesByAddress()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointerLow = new {{typeName}}({{rawLow}});
-					var other = new {{npuTypeName}}((void*){{rawHigh}});
+					var pointerLow = {{typeName}}.FromRaw({{rawLow}});
+					var other = {{npuTypeName}}.FromRaw((void*){{rawHigh}});
 					Assert.True(pointerLow.CompareTo(other) < 0);
 					Assert.True(pointerLow < other);
 					Assert.False(pointerLow > other);
@@ -118,7 +118,7 @@ partial class SourceGenerator
 					public unsafe void CompareToObject_Null_ReturnsPositive()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawLow}});
+						var pointer = {{typeName}}.FromRaw({{rawLow}});
 						Assert.True(pointer.CompareTo((object?)null) > 0);
 					}
 
@@ -126,7 +126,7 @@ partial class SourceGenerator
 					public unsafe void CompareToObject_SamePointerBoxed_ReturnsZero()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawLow}});
+						var pointer = {{typeName}}.FromRaw({{rawLow}});
 						object boxed = pointer;
 						Assert.Equal(0, pointer.CompareTo(boxed));
 					}
@@ -135,7 +135,7 @@ partial class SourceGenerator
 					public unsafe void CompareToObject_NonPointer_ThrowsArgumentException()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawLow}});
+						var pointer = {{typeName}}.FromRaw({{rawLow}});
 						Assert.Throws<ArgumentException>(() => pointer.CompareTo("not a pointer"));
 					}
 

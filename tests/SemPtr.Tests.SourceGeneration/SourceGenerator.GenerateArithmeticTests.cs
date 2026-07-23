@@ -43,7 +43,7 @@ partial class SourceGenerator
 				public unsafe void IncrementOperator_AdvancesByOneElement()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointer = new {{typeName}}(buffer.Pointer);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 					var incremented = ++pointer;
 					Assert.Equal((nint)(buffer.Pointer + 1), (nint)incremented.Raw);
 				}
@@ -52,7 +52,7 @@ partial class SourceGenerator
 				public unsafe void DecrementOperator_RetreatsByOneElement()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointer = new {{typeName}}(buffer.Pointer + 1);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer + 1);
 					var decremented = --pointer;
 					Assert.Equal((nint)buffer.Pointer, (nint)decremented.Raw);
 				}
@@ -61,7 +61,7 @@ partial class SourceGenerator
 				public unsafe void AdditionOperator_WithNint_AdvancesByGivenElementCount()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 					var result = pointer + (nint)3;
 					Assert.Equal((nint)(buffer.Pointer + 3), (nint)result.Raw);
 				}
@@ -70,7 +70,7 @@ partial class SourceGenerator
 				public unsafe void AdditionOperator_WithNuint_AdvancesByGivenElementCount()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 					var result = pointer + (nuint)3;
 					Assert.Equal((nint)(buffer.Pointer + 3), (nint)result.Raw);
 				}
@@ -79,7 +79,7 @@ partial class SourceGenerator
 				public unsafe void AdditionOperator_NintPlusPointer_AdvancesByGivenElementCount()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 					var result = (nint)3 + pointer;
 					Assert.Equal((nint)(buffer.Pointer + 3), (nint)result.Raw);
 				}
@@ -88,7 +88,7 @@ partial class SourceGenerator
 				public unsafe void AdditionOperator_NuintPlusPointer_AdvancesByGivenElementCount()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer);
 					var result = (nuint)3 + pointer;
 					Assert.Equal((nint)(buffer.Pointer + 3), (nint)result.Raw);
 				}
@@ -97,7 +97,7 @@ partial class SourceGenerator
 				public unsafe void SubtractionOperator_WithNint_RetreatsByGivenElementCount()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer + 3);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer + 3);
 					var result = pointer - (nint)3;
 					Assert.Equal((nint)buffer.Pointer, (nint)result.Raw);
 				}
@@ -106,7 +106,7 @@ partial class SourceGenerator
 				public unsafe void SubtractionOperator_WithNuint_RetreatsByGivenElementCount()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer + 3);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer + 3);
 					var result = pointer - (nuint)3;
 					Assert.Equal((nint)buffer.Pointer, (nint)result.Raw);
 				}
@@ -115,8 +115,8 @@ partial class SourceGenerator
 				public unsafe void SubtractionOperator_SameType_ReturnsSignedElementDistance()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var low = new {{typeName}}(buffer.Pointer);
-					var high = new {{typeName}}(buffer.Pointer + 3);
+					var low = {{typeName}}.FromRaw(buffer.Pointer);
+					var high = {{typeName}}.FromRaw(buffer.Pointer + 3);
 					Assert.Equal(3, high - low);
 					Assert.Equal(-3, low - high);
 					Assert.Equal(3, checked(high - low));
@@ -126,8 +126,8 @@ partial class SourceGenerator
 				public unsafe void SubtractionOperator_NullablePointerReadOnly_ReturnsSignedElementDistance()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer + 3);
-					var other = new {{nproTypeName}}(buffer.Pointer);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer + 3);
+					var other = {{nproTypeName}}.FromRaw(buffer.Pointer);
 					Assert.Equal(3, pointer - other);
 					Assert.Equal(-3, other - pointer);
 					Assert.Equal(3, checked(pointer - other));
@@ -137,8 +137,8 @@ partial class SourceGenerator
 				public unsafe void SubtractionOperator_NullablePointerUninitialized_ReturnsSignedElementDistance()
 				{
 					using var buffer = new NativeArray<int>(4);
-					var pointer = new {{typeName}}(buffer.Pointer + 3);
-					var other = new {{npuTypeName}}(buffer.Pointer);
+					var pointer = {{typeName}}.FromRaw(buffer.Pointer + 3);
+					var other = {{npuTypeName}}.FromRaw(buffer.Pointer);
 					Assert.Equal(3, pointer - other);
 					Assert.Equal(-3, other - pointer);
 					Assert.Equal(3, checked(pointer - other));

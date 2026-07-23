@@ -41,8 +41,8 @@ partial class SourceGenerator
 				public unsafe void Equals_SameAddress_ReturnsTrue()
 				{
 					using var buffer = new NativeArray<int>(1);
-					var pointerA = new {{typeName}}({{rawExpr}});
-					var pointerB = new {{typeName}}({{rawExpr}});
+					var pointerA = {{typeName}}.FromRaw({{rawExpr}});
+					var pointerB = {{typeName}}.FromRaw({{rawExpr}});
 					Assert.True(pointerA.Equals(pointerB));
 					Assert.True(pointerA == pointerB);
 					Assert.False(pointerA != pointerB);
@@ -52,8 +52,8 @@ partial class SourceGenerator
 				public unsafe void Equals_DifferentAddress_ReturnsFalse()
 				{
 					using var buffer = new NativeArray<int>(2);
-					var pointerA = new {{typeName}}({{rawExpr}});
-					var pointerB = new {{typeName}}({{(characteristics.Typeability is Typeability.Typed ? "buffer.Pointer + 1" : "(void*)(buffer.Pointer + 1)")}});
+					var pointerA = {{typeName}}.FromRaw({{rawExpr}});
+					var pointerB = {{typeName}}.FromRaw({{(characteristics.Typeability is Typeability.Typed ? "buffer.Pointer + 1" : "(void*)(buffer.Pointer + 1)")}});
 					Assert.False(pointerA.Equals(pointerB));
 					Assert.False(pointerA == pointerB);
 					Assert.True(pointerA != pointerB);
@@ -63,8 +63,8 @@ partial class SourceGenerator
 				public unsafe void GetHashCode_EqualPointers_ReturnsSameHashCode()
 				{
 					using var buffer = new NativeArray<int>(1);
-					var pointerA = new {{typeName}}({{rawExpr}});
-					var pointerB = new {{typeName}}({{rawExpr}});
+					var pointerA = {{typeName}}.FromRaw({{rawExpr}});
+					var pointerB = {{typeName}}.FromRaw({{rawExpr}});
 					Assert.Equal(pointerA.GetHashCode(), pointerB.GetHashCode());
 				}
 
@@ -78,7 +78,7 @@ partial class SourceGenerator
 					public unsafe void EqualsObject_SamePointerBoxed_ReturnsTrue()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawExpr}});
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
 						object boxed = pointer;
 						Assert.True(pointer.Equals(boxed));
 					}
@@ -87,7 +87,7 @@ partial class SourceGenerator
 					public unsafe void EqualsObject_Null_ReturnsFalse()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawExpr}});
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
 						Assert.False(pointer.Equals((object?)null));
 					}
 
@@ -95,7 +95,7 @@ partial class SourceGenerator
 					public unsafe void EqualsObject_UnrelatedType_ReturnsFalse()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawExpr}});
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
 						Assert.False(pointer.Equals("not a pointer"));
 					}
 
@@ -111,7 +111,7 @@ partial class SourceGenerator
 						// 'pointer' is a `ref struct` here, so it cannot be captured in a lambda/delegate passed to Assert.Throws;
 						// a plain try/catch is used instead.
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawExpr}});
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
 						var threw = false;
 					#pragma warning disable CS0618 // intentionally testing the obsoleted, unsupported override
 						try
@@ -139,8 +139,8 @@ partial class SourceGenerator
 					public unsafe void Equals_NullablePointerReadOnly_SameAddress_ReturnsTrue()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawExpr}});
-						var other = new {{nproTypeName}}((void*){{rawExpr}});
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
+						var other = {{nproTypeName}}.FromRaw((void*){{rawExpr}});
 						Assert.True(pointer.Equals(other));
 						Assert.True(pointer == other);
 						Assert.False(pointer != other);
@@ -150,8 +150,8 @@ partial class SourceGenerator
 					public unsafe void Equals_NullablePointerReadOnly_DifferentAddress_ReturnsFalse()
 					{
 						using var buffer = new NativeArray<int>(2);
-						var pointer = new {{typeName}}({{rawExpr}});
-						var other = new {{nproTypeName}}((void*)(buffer.Pointer + 1));
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
+						var other = {{nproTypeName}}.FromRaw((void*)(buffer.Pointer + 1));
 						Assert.False(pointer.Equals(other));
 						Assert.False(pointer == other);
 						Assert.True(pointer != other);
@@ -170,8 +170,8 @@ partial class SourceGenerator
 					public unsafe void Equals_NullablePointerUninitialized_SameAddress_ReturnsTrue()
 					{
 						using var buffer = new NativeArray<int>(1);
-						var pointer = new {{typeName}}({{rawExpr}});
-						var other = new {{npuTypeName}}((void*){{rawExpr}});
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
+						var other = {{npuTypeName}}.FromRaw((void*){{rawExpr}});
 						Assert.True(pointer.Equals(other));
 						Assert.True(pointer == other);
 						Assert.False(pointer != other);
@@ -181,8 +181,8 @@ partial class SourceGenerator
 					public unsafe void Equals_NullablePointerUninitialized_DifferentAddress_ReturnsFalse()
 					{
 						using var buffer = new NativeArray<int>(2);
-						var pointer = new {{typeName}}({{rawExpr}});
-						var other = new {{npuTypeName}}((void*)(buffer.Pointer + 1));
+						var pointer = {{typeName}}.FromRaw({{rawExpr}});
+						var other = {{npuTypeName}}.FromRaw((void*)(buffer.Pointer + 1));
 						Assert.False(pointer.Equals(other));
 						Assert.False(pointer == other);
 						Assert.True(pointer != other);

@@ -33,7 +33,7 @@ partial class SourceGenerator
 				public unsafe void HasTarget_NonNullPointer_ReturnsTrue()
 				{
 					using var buffer = new NativeArray<int>(1);
-					var pointer = new {{typeName}}({{rawExpr}});
+					var pointer = {{typeName}}.FromRaw({{rawExpr}});
 					Assert.True(pointer.HasTarget);
 				}
 
@@ -41,7 +41,7 @@ partial class SourceGenerator
 				public unsafe void ConditionalOperators_NonNullPointer_EvaluatesTruthy()
 				{
 					using var buffer = new NativeArray<int>(1);
-					var pointer = new {{typeName}}({{rawExpr}});
+					var pointer = {{typeName}}.FromRaw({{rawExpr}});
 
 					var branchTaken = false;
 					if (pointer)
@@ -71,14 +71,14 @@ partial class SourceGenerator
 					[Fact]
 					public unsafe void HasTarget_NullPointer_ReturnsFalse()
 					{
-						var pointer = new {{typeName}}(({{rawType}})null);
+						var pointer = {{typeName}}.FromRaw(({{rawType}})null);
 						Assert.False(pointer.HasTarget);
 					}
 
 					[Fact]
 					public unsafe void ConditionalOperators_NullPointer_EvaluatesFalsy()
 					{
-						var pointer = new {{typeName}}(({{rawType}})null);
+						var pointer = {{typeName}}.FromRaw(({{rawType}})null);
 
 						var branchTaken = false;
 						if (pointer)
@@ -98,7 +98,7 @@ partial class SourceGenerator
 					{
 						using var buffer = new NativeArray<int>(1);
 						var raw = {{rawExpr}};
-						var pointer = new {{typeName}}(raw);
+						var pointer = {{typeName}}.FromRaw(raw);
 
 						var result = pointer.TryGetNonNull(out {{nonNullTypeName}} nonNullPointer);
 
@@ -109,7 +109,7 @@ partial class SourceGenerator
 					[Fact]
 					public unsafe void TryGetNonNull_NullPointer_ReturnsFalse()
 					{
-						var pointer = new {{typeName}}(({{rawType}})null);
+						var pointer = {{typeName}}.FromRaw(({{rawType}})null);
 
 						var result = pointer.TryGetNonNull(out {{nonNullTypeName}} nonNullPointer);
 
