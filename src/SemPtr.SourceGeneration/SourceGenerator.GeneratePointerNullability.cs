@@ -11,6 +11,7 @@ partial class SourceGenerator
 		builder.Clear();
 
 		var typeName = characteristics.ToTypeName();
+		var typeNameCRef = characteristics.Typeability switch { Typeability.Typed => $"{characteristics.ToTypeNameWithoutTypeParameter()}{{{Config.GenerationTypeParameterName}}}", _ => typeName };
 
 		builder.Append($$"""
 			#nullable enable
@@ -19,6 +20,35 @@ partial class SourceGenerator
 			
 			partial struct {{typeName}}
 			{
+			""");
+
+		if (characteristics.Nullability is Nullability.Nullable)
+		{
+			builder.Append($$"""				
+				
+					/// <summary>
+					/// Gets a <see cref="{{typeNameCRef}}"/> that represents a <c><see langword="null"/></c> pointer.
+					/// </summary>
+					/// <value>
+					/// A <see cref="{{typeNameCRef}}"/> that represents a <c><see langword="null"/></c> pointer.
+					/// </value>
+					public static {{typeName}} Null
+					{
+						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+						get
+						{
+							unsafe
+							{
+								return new(null);
+							}
+						}
+					}
+
+				""");
+		}
+
+		builder.Append($$"""
+			
 				/// <summary>
 				/// Gets a value indicating whether the current pointer is non-<c><see langword="null"/></c>.
 				/// </summary>
@@ -63,7 +93,7 @@ partial class SourceGenerator
 						{
 							if ({{Config.GenerationRawPointerFieldName}} is not null)
 							{
-								nonNullPointer = new({{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+								nonNullPointer = new({{Config.GenerationRawPointerFieldName}});
 								return true;
 							}
 

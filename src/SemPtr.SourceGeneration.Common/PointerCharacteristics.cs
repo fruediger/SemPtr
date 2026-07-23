@@ -85,54 +85,6 @@ internal readonly struct PointerCharacteristics(Nullability nullability, Persist
 
 	readonly bool IEquatable<PointerCharacteristics>.Equals(PointerCharacteristics other) => Equals(other);
 
-	public static ConversionKind GetConversion(in PointerCharacteristics toCharacteristics, in PointerCharacteristics fromCharacteristics)
-	{
-		// These are the rules for pointer to pointer conversion:
-		//
-		//   Let `to` be the target pointer type and `from` be the source pointer type.
-		//   Then the following three predicates on `(to, from)` define the conversion rules:
-		//
-		//     hasConversion(to, from) := nonnull(to) ⇒ nonnull(from)
-		//                             ∧ persistent(to) ⇒ persistent(from)
-		//                             ∧ sequence(to) ⇒ sequence(from)
-		//                             ∧ (access(to) = access(from) ∨ access(from) = random)
-		//
-		//     hasExplicitConversion(to, from) := hasConversion(to, from)
-		//                                     ∧ ¬(typed(to) ⇒ typed(from))
-		//
-		//     hasImplicitConversion(to, from) := hasConversion(to, from)
-		//                                     ∧ typed(to) ⇒ typed(from)
-		//
-		//   where `hasConversion` determines whether a conversion from `from`to `to` exists (regardless of whether it is implicit or explicit),
-		//   `hasImplicitConversion` determines whether an *implicit* conversion from `from` to `to` exists,
-		//   and `hasExplicitConversion` determines whether an *explicit* conversion from `from` to `to` exists.
-		//
-		//   Furthermore, `nonnull(x)` is a predicate determining whether the given pointer type `x` is non-nullable,
-		//   `persistent(x)` is a predicate determining whether the given pointer type `x` is persistent,
-		//   `sequence(x)` is a predicate determining whether the given pointer type `x` is a sequence pointer type,
-		//   `typed(x)` is a predicate determining whether the given pointer type `x` is typed,
-		//   and `access(x)` maps the given pointer type `x` to its accessibility kind, where `access(x) ∈ { random, read-only, uninitialized }`.
-		//
-		// These rules are the condensed way of describing the conversion rules between pointer types,
-		// and should be enough to correctly state each possible conversion between any two pointer types.
-		//
-		// Note that, if a conversion exists, the only thing that differentiates an implicit conversion from an explicit one
-		// is whether `typed(to) ⇒ typed(from)` yields true or false.
-		// We will make use of this fact in the implementation of this method, rather than having two separate methods determining whether an implicit or explicit conversion exists.
-
-		if (   (toCharacteristics.Nullability is Nullability.NonNull).Implies(fromCharacteristics.Nullability is Nullability.NonNull)
-			&& (toCharacteristics.Persistency is Persistency.Persistent).Implies(fromCharacteristics.Persistency is Persistency.Persistent)
-			&& (toCharacteristics.Sequencability is Sequencability.Sequence).Implies(fromCharacteristics.Sequencability is Sequencability.Sequence)
-			&& (toCharacteristics.Accessibility == fromCharacteristics.Accessibility || fromCharacteristics.Accessibility is Accessibility.Random))
-		{
-			return (toCharacteristics.Typeability is Typeability.Typed).Implies(fromCharacteristics.Typeability is Typeability.Typed)
-				? ConversionKind.Implicit
-				: ConversionKind.Explicit;
-		}
-
-		return ConversionKind.None;
-	}
-
 	public readonly override int GetHashCode() => HashCode.Combine(
 		mNullability,
 		mPersistency,
@@ -188,6 +140,6 @@ internal readonly struct PointerCharacteristics(Nullability nullability, Persist
 	public static implicit operator PointerCharacteristics((Nullability nullability, Persistency persistency, Sequencability sequencability, Accessibility accessibility, Typeability typeability) tuple)
 		=> new(tuple.nullability, tuple.persistency, tuple.sequencability, tuple.accessibility, tuple.typeability);
 
-	public static implicit operator (Nullability nullability, Persistency persistency, Sequencability sequencability, Accessibility accessibility, Typeability typeability)(in PointerCharacteristics traits)
-		=> (traits.mNullability, traits.mPersistency, traits.mSequencability, traits.mAccessibility, traits.mTypeability);
+	public static implicit operator (Nullability nullability, Persistency persistency, Sequencability sequencability, Accessibility accessibility, Typeability typeability)(in PointerCharacteristics characteristics)
+		=> (characteristics.mNullability, characteristics.mPersistency, characteristics.mSequencability, characteristics.mAccessibility, characteristics.mTypeability);
 }

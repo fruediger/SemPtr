@@ -12,6 +12,8 @@ partial class SourceGenerator
 			text: $$"""
 				#nullable enable
 
+				using global::{{Config.InternalNamespaceName}};
+
 				namespace {{Config.PointerNamespaceName}};
 
 				partial struct {{characteristics.ToTypeName(Config.GenerationTypeParameterName)}} :
@@ -26,7 +28,7 @@ partial class SourceGenerator
 
 					/// <inheritdoc cref="global::System.IFormattable.ToString(string?, global::System.IFormatProvider?)"/>
 					public readonly string ToString(global::System.IFormatProvider? formatProvider)
-						=> $"0x{ToString(format: {{Config.PointerInterfaceTypeName}}.{{Config.PointerInterfaceTypeDefaultFormatStringPropertyName}}, formatProvider)}";
+						=> $"0x{ToString(format: {{Config.PointerFormatTypeName}}.{{Config.PointerFormatTypeDefaultFormatStringPropertyName}}, formatProvider)}";
 
 					/// <inheritdoc cref="global::System.IFormattable.ToString(string?, global::System.IFormatProvider?)"/>
 					public readonly string ToString(string? format)
@@ -54,7 +56,7 @@ partial class SourceGenerator
 						destination[1] = 'x';
 						charsWritten = 2;
 
-						if (!TryFormat(destination[2..], out var additionalCharsWritten, format: {{Config.PointerInterfaceTypeName}}.{{Config.PointerInterfaceTypeDefaultFormatStringPropertyName}}, provider))
+						if (!TryFormat(destination[2..], out var additionalCharsWritten, format: {{Config.PointerFormatTypeName}}.{{Config.PointerFormatTypeDefaultFormatStringPropertyName}}, provider))
 						{
 							charsWritten = 0;
 							return false;
@@ -86,7 +88,7 @@ partial class SourceGenerator
 						destination[1] = (byte)'x';
 						bytesWritten = 2;
 
-						if (!TryFormat(destination[2..], out var additionalBytesWritten, format: {{Config.PointerInterfaceTypeName}}.{{Config.PointerInterfaceTypeDefaultFormatStringPropertyName}}, provider))
+						if (!TryFormat(destination[2..], out var additionalBytesWritten, format: {{Config.PointerFormatTypeName}}.{{Config.PointerFormatTypeDefaultFormatStringPropertyName}}, provider))
 						{
 							bytesWritten = 0;
 							return false;

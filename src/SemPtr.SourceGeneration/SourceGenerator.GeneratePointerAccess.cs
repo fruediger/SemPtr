@@ -506,7 +506,7 @@ partial class SourceGenerator
 							unsafe
 							{
 								*{{Config.GenerationRawPointerFieldName}} = value;
-								return new({{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+								return new({{Config.GenerationRawPointerFieldName}});
 							}
 						}
 
@@ -530,7 +530,7 @@ partial class SourceGenerator
 									{
 										var raw = {{Config.GenerationRawPointerFieldName}} + index;
 										*raw = value;
-										return new(raw, {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+										return new(raw);
 									}
 								}
 
@@ -547,7 +547,7 @@ partial class SourceGenerator
 									{
 										var raw = {{Config.GenerationRawPointerFieldName}} + index;
 										*raw = value;
-										return new(raw, {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+										return new(raw);
 
 									}
 								}
@@ -586,7 +586,7 @@ partial class SourceGenerator
 											global::System.Runtime.InteropServices.NativeMemory.Copy(source, {{Config.GenerationRawPointerFieldName}}, checked((nuint)values.Length * (nuint)global::System.Runtime.CompilerServices.Unsafe.SizeOf<{{Config.GenerationTypeParameterName}}>()));
 										}
 
-										return new({{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+										return new({{Config.GenerationRawPointerFieldName}});
 									}
 								}
 
@@ -636,7 +636,7 @@ partial class SourceGenerator
 													global::System.Runtime.InteropServices.NativeMemory.Copy(source, pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}, checked((nuint)values.Length * (nuint)global::System.Runtime.CompilerServices.Unsafe.SizeOf<{{Config.GenerationTypeParameterName}}>()));
 												}
 								
-												return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}, {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+												return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}});
 											}
 										}
 									}

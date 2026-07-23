@@ -56,9 +56,9 @@ partial class SourceGenerator
 				// because it was untyped, we're typed, and we need to type parameter to be present.
 				// So, if that's the case, just for a moment, we need to swap the meaning of fromCharacteristics and toCharacteristics.
 
-				var viceVersaConversionKind = toCharacteristics.GetConversionTo(in fromCharacteristics);
+				var viceVersaConversion = toCharacteristics.GetConversionTo(in fromCharacteristics);
 
-				if (viceVersaConversionKind is not ConversionKind.None)
+				if (viceVersaConversion is not Conversion.None)
 				{
 					builder.Append($$"""
 							
@@ -68,11 +68,11 @@ partial class SourceGenerator
 							/// <param name="pointer">The <see cref="{{toTypeNameCRef}}"/> to convert.</param>
 							/// <returns>A <see cref="{{fromTypeNameCRef}}"/> pointing to the same target as the specified <see cref="{{toTypeNameCRef}}"/>.</returns>
 							[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-							public static {{(viceVersaConversionKind is ConversionKind.Implicit ? "implicit" : "explicit")}} operator {{fromTypeName}}({{toTypeName}} pointer)
+							public static {{(viceVersaConversion is Conversion.Implicit ? "implicit" : "explicit")}} operator {{fromTypeName}}({{toTypeName}} pointer)
 							{
 								unsafe
 								{
-									return new(unchecked(({{Config.GenerationTypeParameterName}}*)pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}){{fromCharacteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+									return new(unchecked(({{Config.GenerationTypeParameterName}}*)pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}));
 								}
 							}
 
@@ -82,9 +82,9 @@ partial class SourceGenerator
 				}
 			}
 
-			var conversionKind = fromCharacteristics.GetConversionTo(in toCharacteristics);
+			var conversion = fromCharacteristics.GetConversionTo(in toCharacteristics);
 
-			if (conversionKind is not ConversionKind.None)
+			if (conversion is not Conversion.None)
 			{
 				builder.Append($$"""
 						
@@ -94,11 +94,11 @@ partial class SourceGenerator
 						/// <param name="pointer">The <see cref="{{fromTypeNameCRef}}"/> to convert.</param>
 						/// <returns>A <see cref="{{toTypeNameCRef}}"/> pointing to the same target as the specified <see cref="{{fromTypeNameCRef}}"/>.</returns>
 						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-						public static {{(conversionKind is ConversionKind.Implicit ? "implicit" : "explicit")}} operator {{toTypeName}}({{fromTypeName}} pointer)
+						public static {{(conversion is Conversion.Implicit ? "implicit" : "explicit")}} operator {{toTypeName}}({{fromTypeName}} pointer)
 						{
 							unsafe
 							{
-								return new(pointer.{{Config.GenerationRawPointerFieldName}}{{toCharacteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+								return new(pointer.{{Config.GenerationRawPointerFieldName}});
 							}
 						}
 

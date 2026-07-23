@@ -1,6 +1,6 @@
 namespace SemPtr.SourceGeneration;
 
-internal enum ConversionKind
+internal enum Conversion
 {
 	None,
 	Explicit,

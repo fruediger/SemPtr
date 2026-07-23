@@ -44,11 +44,25 @@ internal partial class SourceGenerator
 				_ => string.Empty
 			}}}.
 			/// </summary>
+		""");
+
+		if (characteristics.Typeability is Typeability.Typed)
+		{
+			builder.Append($$"""
+				
+				/// <typeparam name="{{Config.GenerationTypeParameterName}}">The type of the target that the pointer points to.</typeparam>
+				""");
+		}
+
+		builder.Append($$"""
+
 			/// <remarks>
 			/// <para>
 			/// <see cref="{{typeNameCRef}}"/> has the following characteristics:
 			/// <list type="bullet">
-			""");
+			"""
+			);
+			
 
 		if (characteristics.Nullability is Nullability.NonNull)
 		{
@@ -187,7 +201,7 @@ internal partial class SourceGenerator
 
 				/// <para>
 				/// You should never create instances of <see cref="{{typeNameCRef}}"/> pointers using its parameterless constructors or <c><see langword="default"/>(<see cref="{{typeNameCRef}}"/>)</c>. Doing so will result in undefined behavior.
-				/// Always use the <see cref="{{typeNameCRef}}.{{typeNameWithoutTypeParameter}}({{rawPointerType}})"/> constructor or the <see cref="FromIntPtr(global::System.IntPtr)"/> and <see cref="FromUIntPtr(global::System.UIntPtr)"/> methods to create instances of <see cref="{{typeNameCRef}}"/> pointers.
+				/// Always use the <see cref="{{Config.PointerInterfaceTypeFromRawMethodName}}({{rawPointerType}})"/> method, <see cref="{{Config.PointerInterfaceTypeFromIntPtrMethodName}}(global::System.IntPtr)"/>, or <see cref="{{Config.PointerInterfaceTypeFromUIntPtrMethodName}}(global::System.UIntPtr)"/> methods to create instances of <see cref="{{typeNameCRef}}"/> pointers.
 				/// </para>
 				""");
 		}
@@ -196,7 +210,7 @@ internal partial class SourceGenerator
 
 			/// </remarks>
 			[global::System.Runtime.InteropServices.StructLayout(global::System.Runtime.InteropServices.LayoutKind.Sequential)]
-			public readonly {{characteristics switch { { Persistency: not Persistency.Persistent } => "ref ", _ => string.Empty }}}partial struct {{typeName}} : {{Config.PointerInterfaceTypeName}}{{characteristics switch { { Typeability: Typeability.Typed } => $"<{Config.GenerationTypeParameterName}>", _ => string.Empty }}}
+			public readonly {{characteristics switch { { Persistency: not Persistency.Persistent } => "ref ", _ => string.Empty }}}partial struct {{typeName}} : {{characteristics.Typeability switch { Typeability.Typed =>$"{Config.PointerTypedInterfaceTypeName}<{Config.GenerationTypeParameterName}, {typeName}>", _ => $"{Config.PointerInterfaceTypeName}<{typeName}>" }}}
 			""");
 
 		if (characteristics.Typeability is Typeability.Typed)
@@ -212,84 +226,18 @@ internal partial class SourceGenerator
 			{
 				private unsafe readonly {{rawPointerType}} {{Config.GenerationRawPointerFieldName}};
 
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				internal unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw) => {{Config.GenerationRawPointerFieldName}} = raw;
+
 			""");
 
 		if (characteristics.Nullability is not Nullability.Nullable)
 		{
 			builder.Append($$"""
 
-				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				internal unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw, bool {{Config.GenerationUncheckedConstructorDispatcherParameterName}}) => {{Config.GenerationRawPointerFieldName}} = raw;
-			
-				/// <summary>
-				/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
-				/// </summary>
-				/// <param name="raw">The raw pointer specifying the {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
-				/// <remarks>
-				/// <para>
-				/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
-				/// </para>
-				/// <para>
-				/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as <paramref name="raw"/>.
-				/// </para>
-				/// </remarks>
-				/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
-				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw)
-				{
-					if (raw is null)
-					{
-						[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]
-						static void failRawArgumentNull() => throw new global::System.ArgumentNullException(nameof(raw));
-
-						failRawArgumentNull();
-					}
-
-					{{Config.GenerationRawPointerFieldName}} = raw;
-				}
-
 				/// <summary>Do not use. Do not create instances of non-nullable pointers using parameterless constructors or default values.</summary>
 				[global::System.Obsolete("Do not use. Do not create instances of non-nullable pointers using parameterless constructors or default values.", error: true)]
 				public {{typeNameWithoutTypeParameter}}() { }
-
-			""");
-		}
-		else
-		{
-			builder.Append($$"""
-			
-				/// <summary>
-				/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
-				/// </summary>
-				/// <param name="raw">The raw pointer specifying the {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
-				/// <remarks>
-				/// <para>
-				/// The <paramref name="raw"/> pointer may be <c><see langword="null"/></c>. If it is, the resulting <see cref="{{typeNameCRef}}"/> will represent a null pointer.
-				/// </para>
-				/// <para>
-				/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as <paramref name="raw"/>.
-				/// </para>
-				/// </remarks>
-				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw) => {{Config.GenerationRawPointerFieldName}} = raw;
-
-				/// <summary>
-				/// Gets a <see cref="{{typeNameCRef}}"/> that represents a <c><see langword="null"/></c> pointer.
-				/// </summary>
-				/// <value>
-				/// A <see cref="{{typeNameCRef}}"/> that represents a <c><see langword="null"/></c> pointer.
-				/// </value>
-				public static {{typeName}} Null
-				{
-					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					get
-					{
-						unsafe
-						{
-							return new(null);
-						}
-					}
-				}
 
 			""");
 		}
@@ -323,6 +271,127 @@ internal partial class SourceGenerator
 				""");
 		}
 
+		builder.Append($$"""
+				
+				/// <summary>
+				/// Gets an <see cref="global::System.IntPtr"/> that represents the same memory address as the current pointer.
+				/// </summary>
+				/// <value>A <see cref="global::System.IntPtr"/> that represents the same memory address as the current pointer.</value>
+				public readonly global::System.IntPtr {{Config.PointerInterfaceTypeAsIntPtrPropertyName}}
+				{
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					get
+					{
+						unsafe
+						{
+							return unchecked((global::System.IntPtr){{Config.GenerationRawPointerFieldName}});
+						}
+					}
+				}
+			
+				/// <summary>
+				/// Gets an <see cref="global::System.UIntPtr"/> that represents the same memory address as the current pointer.
+				/// </summary>
+				/// <value>A <see cref="global::System.UIntPtr"/> that represents the same memory address as the current pointer.</value>				
+				public readonly global::System.UIntPtr {{Config.PointerInterfaceTypeAsUIntPtrPropertyName}}
+				{
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					get
+					{
+						unsafe
+						{
+							return unchecked((global::System.UIntPtr){{Config.GenerationRawPointerFieldName}});
+						}
+					}
+				}
+
+			""");
+
+		if (characteristics.Nullability is not Nullability.Nullable)
+		{
+			builder.Append($$"""
+
+						/// <summary>
+						/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
+						/// </summary>
+						/// <param name="raw">The raw pointer specifying the {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
+						/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as the specified <paramref name="raw"/> pointer.</returns>
+						/// <remarks>
+						/// <para>
+						/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
+						/// </para>
+						/// <para>
+						/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as <paramref name="raw"/>.
+						/// </para>
+						/// </remarks>
+						/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
+						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+						public unsafe static {{typeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}({{rawPointerType}} raw)
+						{
+							if (raw is null)
+							{
+								[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]
+								static void failRawArgumentNull() => throw new global::System.ArgumentNullException(nameof(raw));
+
+								failRawArgumentNull();
+							}
+
+							return new(raw);
+						}
+
+					""");
+		}
+		else
+		{
+			builder.Append($$"""
+
+						/// <summary>
+						/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
+						/// </summary>
+						/// <param name="raw">The raw pointer specifying the {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
+						/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as the specified <paramref name="raw"/> pointer.</returns>
+						/// <remarks>
+						/// <para>
+						/// The <paramref name="raw"/> pointer may be <c><see langword="null"/></c>. If it is, the resulting <see cref="{{typeNameCRef}}"/> will represent a null pointer.
+						/// </para>
+						/// <para>
+						/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as <paramref name="raw"/>.
+						/// </para>
+						/// </remarks>
+						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+						public unsafe static {{typeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}({{rawPointerType}} raw) => new(raw);
+
+					""");
+		}
+
+		if (characteristics.Typeability is Typeability.Typed)
+		{
+			builder.Append($$"""
+				
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					unsafe static {{typeName}} {{Config.PointerInterfaceTypeName}}<{{typeName}}>.{{Config.PointerInterfaceTypeFromRawMethodName}}(void* raw)
+						=> FromRaw(unchecked(({{rawPointerType}})raw));
+
+				""");
+		}
+		else
+		{
+			var typedCharacteristics = characteristics with { Typeability = Typeability.Typed };
+			var typedTypeName = typedCharacteristics.ToTypeName();
+			var typedTypeNameCRef = $"{typedCharacteristics.ToTypeNameWithoutTypeParameter()}{{{Config.GenerationTypeParameterName}}}";
+
+			builder.Append($$"""
+
+					/// <inheritdoc cref="{{typedTypeNameCRef}}.FromRaw({{Config.GenerationTypeParameterName}}*)"/>
+					/// <typeparam name="{{Config.GenerationTypeParameterName}}">The type of the target that the resulting <see cref="{{typedTypeNameCRef}}"/> will point to.</typeparam>
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					public unsafe static {{typedTypeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}<{{Config.GenerationTypeParameterName}}>({{Config.GenerationTypeParameterName}}* raw)
+						where {{Config.GenerationTypeParameterName}} : unmanaged{{typedCharacteristics.Persistency switch { not Persistency.Persistent => ", allows ref struct", _ => string.Empty }}}
+						=> {{typedTypeName}}.{{Config.PointerInterfaceTypeFromRawMethodName}}(raw);
+
+				""");
+		}
+
 		if (characteristics.Nullability is not Nullability.Nullable)
 		{
 			builder.Append($$"""
@@ -340,7 +409,7 @@ internal partial class SourceGenerator
 					/// <exception cref="global::System.ArgumentNullException"><paramref name="value"/> is <c>0</c></exception>
 					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static {{typeName}} FromIntPtr(global::System.IntPtr value)
+					public static {{typeName}} {{Config.PointerInterfaceTypeFromIntPtrMethodName}}(global::System.IntPtr value)
 					{
 						unsafe
 						{
@@ -352,7 +421,7 @@ internal partial class SourceGenerator
 								failValueArgumentNull();
 							}
 				
-							return new(unchecked(({{rawPointerType}})value), {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+							return new(unchecked(({{rawPointerType}})value));
 						}
 					}
 				
@@ -368,7 +437,7 @@ internal partial class SourceGenerator
 					/// </remarks>
 					/// <exception cref="global::System.ArgumentNullException"><paramref name="value"/> is <c>0</c></exception>
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static {{typeName}} FromUIntPtr(global::System.UIntPtr value)
+					public static {{typeName}} {{Config.PointerInterfaceTypeFromUIntPtrMethodName}}(global::System.UIntPtr value)
 					{
 						unsafe
 						{
@@ -380,7 +449,7 @@ internal partial class SourceGenerator
 								failValueArgumentNull();
 							}
 				
-							return new(unchecked(({{rawPointerType}})value), {{Config.GenerationUncheckedConstructorDispatcherParameterName}}: default);
+							return new(unchecked(({{rawPointerType}})value));
 						}
 					}
 
@@ -397,7 +466,7 @@ internal partial class SourceGenerator
 					/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same memory address as the specified <paramref name="value"/>.</returns>
 					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static {{typeName}} FromIntPtr(global::System.IntPtr value)
+					public static {{typeName}} {{Config.PointerInterfaceTypeFromIntPtrMethodName}}(global::System.IntPtr value)
 					{
 						unsafe
 						{				
@@ -411,7 +480,7 @@ internal partial class SourceGenerator
 					/// <param name="value">The memory address to create a <see cref="{{typeNameCRef}}"/> from.</param>
 					/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same memory address as the specified <paramref name="value"/>.</returns>
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static {{typeName}} FromUIntPtr(global::System.UIntPtr value)
+					public static {{typeName}} {{Config.PointerInterfaceTypeFromUIntPtrMethodName}}(global::System.UIntPtr value)
 					{
 						unsafe
 						{				
@@ -425,32 +494,6 @@ internal partial class SourceGenerator
 		builder.Append($$"""
 
 				/// <summary>
-				/// Gets a <see cref="global::System.IntPtr"/> that represents the same memory address as the current pointer.
-				/// </summary>
-				/// <returns>A <see cref="global::System.IntPtr"/> that represents the same memory address as the current pointer.</returns>
-				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public readonly global::System.IntPtr ToIntPtr()
-				{
-					unsafe
-					{
-						return unchecked((global::System.IntPtr){{Config.GenerationRawPointerFieldName}});
-					}
-				}
-
-				/// <summary>
-				/// Gets a <see cref="global::System.UIntPtr"/> that represents the same memory address as the current pointer.
-				/// </summary>
-				/// <returns>A <see cref="global::System.UIntPtr"/> that represents the same memory address as the current pointer.</returns>
-				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public readonly global::System.UIntPtr ToUIntPtr()
-				{
-					unsafe
-					{
-						return unchecked((global::System.UIntPtr){{Config.GenerationRawPointerFieldName}});
-					}
-				}
-
-				/// <summary>
 				/// Converts a raw pointer to a <see cref="{{typeNameCRef}}"/>.
 				/// </summary>
 				/// <param name="raw">The raw pointer to convert.</param>
@@ -462,7 +505,7 @@ internal partial class SourceGenerator
 				/// </remarks>
 				/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe static implicit operator {{typeName}}({{rawPointerType}} raw) => new(raw);
+				public unsafe static implicit operator {{typeName}}({{rawPointerType}} raw) => FromRaw(raw);
 
 				/// <summary>
 				/// Converts a <see cref="{{typeNameCRef}}"/> to a raw pointer.

@@ -73,7 +73,7 @@ partial class SourceGenerator
 					unsafe
 					{
 						var raw = value.{{Config.GenerationRawPointerFieldName}};
-						return new(++raw{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(++raw);
 					}
 				}
 
@@ -84,7 +84,7 @@ partial class SourceGenerator
 					unsafe
 					{
 						var raw = value.{{Config.GenerationRawPointerFieldName}};
-						return new(--raw{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(--raw);
 					}
 				}
 
@@ -95,7 +95,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} + right{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(left.{{Config.GenerationRawPointerFieldName}} + right);
 					}
 				}
 
@@ -105,7 +105,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} + right{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(left.{{Config.GenerationRawPointerFieldName}} + right);
 					}
 				}
 
@@ -116,7 +116,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left + right.{{Config.GenerationRawPointerFieldName}}{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(left + right.{{Config.GenerationRawPointerFieldName}});
 					}
 				}
 			
@@ -126,7 +126,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left + right.{{Config.GenerationRawPointerFieldName}}{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(left + right.{{Config.GenerationRawPointerFieldName}});
 					}
 				}
 
@@ -137,7 +137,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} - right{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(left.{{Config.GenerationRawPointerFieldName}} - right);
 					}
 				}
 			
@@ -147,7 +147,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} - right{{characteristics.Nullability switch { not Nullability.Nullable => $", {Config.GenerationUncheckedConstructorDispatcherParameterName}: default", _ => string.Empty }}});
+						return new(left.{{Config.GenerationRawPointerFieldName}} - right);
 					}
 				}
 

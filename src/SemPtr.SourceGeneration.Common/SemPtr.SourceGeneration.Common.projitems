@@ -11,8 +11,10 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Accessibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Config.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ConversionKind.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Conversion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConversionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerCharacteristics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nullability.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Persistency.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PointerCharacteristics.cs" />

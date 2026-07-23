@@ -43,16 +43,16 @@ partial class SourceGenerator
 				continue;
 			}
 
-			var conversionKind = characteristics.GetConversionTo(in toCharacteristics);
+			var conversion = characteristics.GetConversionTo(in toCharacteristics);
 
-			if (conversionKind is ConversionKind.None)
+			if (conversion is Conversion.None)
 			{
 				continue;
 			}
 
 			var toTypeName = QualifiedTypeName(in toCharacteristics);
 			var toSafeName = SafeName(in toCharacteristics);
-			var convertExpr = conversionKind is ConversionKind.Implicit
+			var convertExpr = conversion is Conversion.Implicit
 				? $"{toTypeName} converted = from;"
 				: $"var converted = ({toTypeName})from;";
 

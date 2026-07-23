@@ -21,13 +21,4 @@ internal static class Extensions
 	{
 		public bool Implies(bool other) => !value || other;
 	}
-
-	extension(in PointerCharacteristics traits)
-	{
-		public ConversionKind GetConversionFrom(in PointerCharacteristics other)
-			=> PointerCharacteristics.GetConversion(in traits, in other);
-
-		public ConversionKind GetConversionTo(in PointerCharacteristics other)
-			=> PointerCharacteristics.GetConversion(in other, in traits);
-	}
 }
