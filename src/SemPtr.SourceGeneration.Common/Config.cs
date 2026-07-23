@@ -18,5 +18,6 @@ internal static class Config
 	public const string GenerationRawPointerFieldName = "mRaw";
 	public const string GenerationTargetPropertyName = "Target";
 	public const string GenerationTypeParameterName = "T";
+	public const string GenerationDelegateTypeParameterName = "TDelegate";
 	public const string TypeNameFormattingExtensionsMethodName = "AppendQualifiedCSharpTypeName";
 }
