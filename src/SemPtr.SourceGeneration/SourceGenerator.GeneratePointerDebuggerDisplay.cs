@@ -145,13 +145,6 @@ partial class SourceGenerator
 							public readonly string Type => new global::System.Text.StringBuilder().{{Config.TypeNameFormattingExtensionsMethodName}}(typeof({{Config.GenerationTypeParameterName}})).ToString();
 						}
 
-				""");
-		}
-
-		if (characteristics.Typeability is Typeability.Typed)
-		{
-			builder.Append($$"""
-
 						[global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]
 						[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 						private readonly {{rawPointerType}} mRaw;

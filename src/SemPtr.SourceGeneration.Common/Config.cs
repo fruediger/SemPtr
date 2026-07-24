@@ -2,6 +2,10 @@
 
 internal static class Config
 {
+	public const string FunctionPointerInterfaceTypeName = "IFunctionPointer";
+	public const string FunctionPointerTypedInterfaceTypeName = "ITypedFunctionPointer";
+	public const string FunctionPointerInterfaceFromDelegateMethodName = "FromDelegate";
+	public const string FunctionPointerInterfaceToDelegateMethodName = "ToDelegate";
 	public const string InternalNamespaceName = "SemPtr.Internal";
 	public const string PointerNamespaceName = "SemPtr";
 	public const string PointerExtensionsTypeName = "PointerExtensions";

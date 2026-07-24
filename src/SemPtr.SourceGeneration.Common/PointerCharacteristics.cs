@@ -7,7 +7,7 @@ namespace SemPtr.SourceGeneration;
 
 [StructLayout(LayoutKind.Sequential)]
 [method: SetsRequiredMembers]
-internal readonly struct PointerCharacteristics(Nullability nullability, Persistency persistency, Sequencability sequencability, Accessibility accessibility, Typeability typeability) : IEquatable<PointerCharacteristics>
+internal readonly struct PointerCharacteristics(Nullability nullability, Persistency persistency, Sequencability sequencability, Accessibility accessibility, Typeability typeability) : IPointerCharacteristics<PointerCharacteristics>
 {
 	private readonly Nullability mNullability = nullability;
 	private readonly Persistency mPersistency = persistency;
@@ -107,12 +107,16 @@ internal readonly struct PointerCharacteristics(Nullability nullability, Persist
 			_ => string.Empty
 		}}";
 
+	string IPointerCharacteristics<PointerCharacteristics>.ToFileNamePrefix() => ToFileNamePrefix();
+
 	public readonly string ToTypeName(string typeParameterName = Config.GenerationTypeParameterName)
 		=> $"{ToTypeNameWithoutTypeParameter()}{mTypeability switch
 		{
 			Typeability.Typed => $"<{typeParameterName}>",
 			_ => string.Empty
 		}}";
+
+	string IPointerCharacteristics<PointerCharacteristics>.ToTypeName() => ToTypeName();
 
 	public readonly string ToTypeNameWithoutTypeParameter()
 		=> $"{mNullability switch

@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ConversionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerCharacteristics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPointerCharacteristics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Nullability.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Persistency.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PointerCharacteristics.cs" />

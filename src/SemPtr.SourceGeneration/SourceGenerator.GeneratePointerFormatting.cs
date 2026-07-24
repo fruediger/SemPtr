@@ -6,7 +6,8 @@ namespace SemPtr.SourceGeneration;
 
 partial class SourceGenerator
 {
-	private static void GeneratePointerFormatting(IncrementalGeneratorPostInitializationContext pic, in PointerCharacteristics characteristics, StringBuilder builder)
+	private static void GeneratePointerFormatting<TCharacteristics>(IncrementalGeneratorPostInitializationContext pic, in TCharacteristics characteristics, StringBuilder builder)
+		where TCharacteristics : struct, IPointerCharacteristics<TCharacteristics>
 	{
 		pic.AddSource($"{Config.PointerNamespaceName}.{characteristics.ToFileNamePrefix()}.Formatting.g.cs", SourceText.From(
 			text: $$"""
@@ -16,7 +17,7 @@ partial class SourceGenerator
 
 				namespace {{Config.PointerNamespaceName}};
 
-				partial struct {{characteristics.ToTypeName(Config.GenerationTypeParameterName)}} :
+				partial struct {{characteristics.ToTypeName()}} :
 					global::System.IFormattable,
 					global::System.ISpanFormattable,
 					global::System.IUtf8SpanFormattable

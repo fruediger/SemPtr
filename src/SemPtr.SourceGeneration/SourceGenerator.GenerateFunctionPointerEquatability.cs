@@ -6,68 +6,49 @@ namespace SemPtr.SourceGeneration;
 
 partial class SourceGenerator
 {
-	private static void GeneratePointerEquatability(IncrementalGeneratorPostInitializationContext pic, in PointerCharacteristics characteristics, StringBuilder builder)
+	private static void GenerateFunctionPointerEquatability(IncrementalGeneratorPostInitializationContext pic, in FunctionPointerCharacteristics characteristics, StringBuilder builder)
 	{
-		// A brief explanation about the equality overloads:
-		// All pointer types can be implicitly converted to 'NullablePointerReadOnly', 'NullablePointerUninitialized', or both (or they are already one of those types).
-		// Therefore, we can overload the 'Equals' methods/equality operators to accept those types (on the right-hand side),
-		// and this way will allow for equality comparisons between any pointer types.
-		// In the case that a type can be implicitly converted to either 'NullablePointerReadOnly' or 'NullablePointerUninitialized',
-		// we'll use 'OverloadResolutionPriority' to prioritize the same type overload, then the 'NullablePointerReadOnly' overload, then the 'NullablePointerUninitialized' overload.
-
-		// With the recent addition of function pointers, we also need to add overloads for 'NullableFunctionPointer' and only for that type, as all function pointer types can be implicitly converted to 'NullableFunctionPointer'.
+		// See the comment in GenerateFunctionPointerEquatability for a brief explanation on how equatability is implemented for pointers.
 
 		builder.Clear();
 
 		var typeName = characteristics.ToTypeName();
-		var characteristicsIsNotNpro = characteristics is not { Nullability: Nullability.Nullable, Persistency: Persistency.Transient, Sequencability: Sequencability.Object, Accessibility: Accessibility.ReadOnly, Typeability: Typeability.Untyped }; // NullablePointerReadOnly
-		var characteristicsIsNotNpu = characteristics is not { Nullability: Nullability.Nullable, Persistency: Persistency.Transient, Sequencability: Sequencability.Object, Accessibility: Accessibility.Uninitialized, Typeability: Typeability.Untyped }; // NullablePointerUninitialized
-		var nproTypeName = characteristicsIsNotNpro ? new PointerCharacteristics(Nullability.Nullable, Persistency.Transient, Sequencability.Object, Accessibility.ReadOnly, Typeability.Untyped).ToTypeName() : "";
-		var npuTypeName = characteristicsIsNotNpu ? new PointerCharacteristics(Nullability.Nullable, Persistency.Transient, Sequencability.Object, Accessibility.Uninitialized, Typeability.Untyped).ToTypeName() : "";
-		var nfpTypeName = new FunctionPointerCharacteristics(Nullability.Nullable, Persistency.Transient, Typeability.Untyped).ToTypeName();
+		var characteristicsIsNotNfp = characteristics is not { Nullability: Nullability.Nullable, Persistency: Persistency.Transient, Typeability: Typeability.Untyped };
+		var nfpTypeName = characteristicsIsNotNfp ? new FunctionPointerCharacteristics(Nullability.Nullable, Persistency.Transient, Typeability.Untyped).ToTypeName() : "";
+		var nproTypeName = new PointerCharacteristics(Nullability.Nullable, Persistency.Transient, Sequencability.Object, Accessibility.ReadOnly, Typeability.Untyped).ToTypeName();
+		var npuTypeName = new PointerCharacteristics(Nullability.Nullable, Persistency.Transient, Sequencability.Object, Accessibility.Uninitialized, Typeability.Untyped).ToTypeName();
 
 		builder.Append($$"""
 			#nullable enable
 
 			namespace {{Config.PointerNamespaceName}};
-			
+
 			partial struct {{typeName}} :
 				global::System.IEquatable<{{typeName}}>
 			""");
 
-		if (characteristicsIsNotNpro)
+		if (characteristicsIsNotNfp)
 		{
 			builder.Append($$"""
 				,
-					global::System.IEquatable<{{nproTypeName}}>
-				""");
-		}
-
-		if (characteristicsIsNotNpu)
-		{
-			builder.Append($$"""
-				,
-					global::System.IEquatable<{{npuTypeName}}>
+					global::System.IEquatable<{{nfpTypeName}}>
 				""");
 		}
 
 		builder.Append($$"""
 			,
-				global::System.IEquatable<{{nfpTypeName}}>
+				global::System.IEquatable<{{nproTypeName}}>,
+				global::System.IEquatable<{{npuTypeName}}>
 			""");
 
 		if (characteristics.Persistency is Persistency.Persistent)
 		{
-			// Sadly, we can't add 'IEqualityOperators' to non-persistent pointers, as they are declared as 'ref struct', and 'IEqualityOperators' does not have 'allows ref struct' on any of its type parameter contraints.
-			// However, we'll add the equality operators anyway, it's just that non-persistent pointers won't be able to implement the interfaces.
+			// See the comment in GeneratePointerEquatability for why we add IEqualityOperators to the implemented interfaces list only for persistent pointers.
+
 			builder.Append($$"""
 				,
 					global::System.Numerics.IEqualityOperators<{{typeName}}, {{typeName}}, bool>
 				""");
-
-			// At this point, we'd like to add 'IEqualityOperators' interface implementations for 'NullablePointerReadOnly' and 'NullablePointerUninitialized' parameters on the right-hand side as well,
-			// but because 'NullablePointerReadOnly' and 'NullablePointerUninitialized' are not persistent, and therefore are 'ref struct's, we can't do that.
-			// However, as already stated, we'll add the corresponding equality operators anyway.
 		}
 
 		builder.Append($$"""
@@ -81,7 +62,7 @@ partial class SourceGenerator
 
 			builder.Append($$"""
 
-					/// <summary>Not supported. Do not call this method, use the <see cref="Equals({{typeNameWithoutTypeParameter}}{{characteristics switch { { Typeability: Typeability.Typed } => $"{{{Config.GenerationTypeParameterName}}}", _ => string.Empty }}})" /> method instead.</summary>
+					/// <summary>Not supported. Do not call this method, use the <see cref="Equals({{typeNameWithoutTypeParameter}}{{characteristics switch { { Typeability: Typeability.Typed } => $"{{{Config.GenerationDelegateTypeParameterName}}}", _ => string.Empty }}})" /> method instead.</summary>
 					/// <exception cref="global::System.NotSupportedException">Always</exception>
 					[global::System.Obsolete($"Not supported. Do not call this method, use the {nameof(Equals)}({nameof({{typeNameWithoutTypeParameter}}{{characteristics switch { { Typeability: Typeability.Typed } => "<>", _ => string.Empty }}})}) method instead.")]
 					[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]
@@ -112,7 +93,7 @@ partial class SourceGenerator
 				""");
 		}
 
-		var sameTypeOverloadPriority = (characteristicsIsNotNpu, characteristicsIsNotNpro) switch { (true, true) => "4", (false, true) or (true, false) => "3", _ => "2" };
+		var sameTypeOverloadPriority = characteristicsIsNotNfp ? "4" : "3";
 
 		builder.Append($$"""
 				
@@ -129,32 +110,14 @@ partial class SourceGenerator
 
 			""");
 
-		if (characteristicsIsNotNpro)
+		if (characteristicsIsNotNfp)
 		{
 			builder.Append($$"""
 
 					/// <inheritdoc/>
-					[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{(characteristicsIsNotNpu ? "3" : "2")}})]
+					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(3)]
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public readonly bool Equals({{nproTypeName}} other) 
-					{
-						unsafe
-						{
-							return {{Config.GenerationRawPointerFieldName}} == other.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
-						}
-					}
-
-				""");
-		}
-
-		if (characteristicsIsNotNpu)
-		{
-			builder.Append($$"""
-
-					/// <inheritdoc/>
-					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(2)]
-					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public readonly bool Equals({{npuTypeName}} other) 
+					public readonly bool Equals({{nfpTypeName}} other) 
 					{
 						unsafe
 						{
@@ -168,9 +131,20 @@ partial class SourceGenerator
 		builder.Append($$"""
 
 				/// <inheritdoc/>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority(2)]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public readonly bool Equals({{nproTypeName}} other) 
+				{
+					unsafe
+					{
+						return {{Config.GenerationRawPointerFieldName}} == other.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
+					}
+				}
+
+				/// <inheritdoc/>
 				[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public readonly bool Equals({{nfpTypeName}} other) 
+				public readonly bool Equals({{npuTypeName}} other) 
 				{
 					unsafe
 					{
@@ -212,14 +186,14 @@ partial class SourceGenerator
 
 			""");
 
-		if (characteristicsIsNotNpro)
+		if (characteristicsIsNotNfp)
 		{
 			builder.Append($$"""
 
 					/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Equality(TSelf,TOther)"/>
-					[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{(characteristicsIsNotNpu ? "3" : "2")}})]
+					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(3)]
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static bool operator ==({{typeName}} left, {{nproTypeName}} right)
+					public static bool operator ==({{typeName}} left, {{nfpTypeName}} right)
 					{
 						unsafe
 						{
@@ -228,38 +202,9 @@ partial class SourceGenerator
 					}
 
 					/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Inequality(TSelf,TOther)"/>
-					[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{(characteristicsIsNotNpu ? "3" : "2")}})]
+					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(3)]
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static bool operator !=({{typeName}} left, {{nproTypeName}} right)
-					{
-						unsafe
-						{
-							return left.{{Config.GenerationRawPointerFieldName}} != right.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
-						}
-					}
-
-				""");
-		}
-
-		if (characteristicsIsNotNpu)
-		{
-			builder.Append($$"""
-
-					/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Equality(TSelf,TOther)"/>
-					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(2)]
-					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static bool operator ==({{typeName}} left, {{npuTypeName}} right)
-					{
-						unsafe
-						{
-							return left.{{Config.GenerationRawPointerFieldName}} == right.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
-						}
-					}
-
-					/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Inequality(TSelf,TOther)"/>
-					[global::System.Runtime.CompilerServices.OverloadResolutionPriority(2)]
-					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static bool operator !=({{typeName}} left, {{npuTypeName}} right)
+					public static bool operator !=({{typeName}} left, {{nfpTypeName}} right)
 					{
 						unsafe
 						{
@@ -273,9 +218,9 @@ partial class SourceGenerator
 		builder.Append($$"""
 
 				/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Equality(TSelf,TOther)"/>
-				[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority(2)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public static bool operator ==({{typeName}} left, {{nfpTypeName}} right)
+				public static bool operator ==({{typeName}} left, {{nproTypeName}} right)
 				{
 					unsafe
 					{
@@ -284,9 +229,31 @@ partial class SourceGenerator
 				}
 
 				/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Inequality(TSelf,TOther)"/>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority(2)]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public static bool operator !=({{typeName}} left, {{nproTypeName}} right)
+				{
+					unsafe
+					{
+						return left.{{Config.GenerationRawPointerFieldName}} != right.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
+					}
+				}
+
+				/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Equality(TSelf,TOther)"/>
 				[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public static bool operator !=({{typeName}} left, {{nfpTypeName}} right)
+				public static bool operator ==({{typeName}} left, {{npuTypeName}} right)
+				{
+					unsafe
+					{
+						return left.{{Config.GenerationRawPointerFieldName}} == right.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
+					}
+				}
+			
+				/// <inheritdoc cref="global::System.Numerics.IEqualityOperators{TSelf,TOther,TOtherResult}.op_Inequality(TSelf,TOther)"/>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public static bool operator !=({{typeName}} left, {{npuTypeName}} right)
 				{
 					unsafe
 					{
