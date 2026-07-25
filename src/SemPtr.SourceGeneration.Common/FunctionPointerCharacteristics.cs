@@ -81,6 +81,13 @@ internal readonly struct FunctionPointerCharacteristics(Nullability nullability,
 
 	string IPointerCharacteristics<FunctionPointerCharacteristics>.ToFileNamePrefix() => ToFileNamePrefix();
 
+	public readonly string ToMetadataName()
+		=> $"{ToTypeNameWithoutTypeParameter()}{Typeability switch
+		{
+			Typeability.Typed => $"`1",
+			_ => string.Empty
+		}}";
+
 	public readonly string ToTypeName(string typeParameterName = Config.GenerationDelegateTypeParameterName)
 		=> $"{ToTypeNameWithoutTypeParameter()}{Typeability switch
 		{

@@ -107,6 +107,13 @@ internal readonly struct PointerCharacteristics(Nullability nullability, Persist
 			_ => string.Empty
 		}}";
 
+	public readonly string ToMetadataName()
+		=> $"{ToTypeNameWithoutTypeParameter()}{mTypeability switch
+		{
+			Typeability.Typed => $"`1",
+			_ => string.Empty
+		}}";
+
 	string IPointerCharacteristics<PointerCharacteristics>.ToFileNamePrefix() => ToFileNamePrefix();
 
 	public readonly string ToTypeName(string typeParameterName = Config.GenerationTypeParameterName)
