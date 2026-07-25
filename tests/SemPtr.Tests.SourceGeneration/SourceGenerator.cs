@@ -25,6 +25,14 @@ internal sealed partial class SourceGenerator : IIncrementalGenerator
 				GenerateFormattingTests(pic, in characteristics, builder);
 				GenerateConversionTests(pic, in characteristics, builder);
 			}
+
+			foreach (var characteristics in FunctionPointerCharacteristics.Enumerate())
+			{
+				GenerateFunctionPointerDeclarationTests(pic, in characteristics, builder);
+				GenerateFunctionPointerNullabilityTests(pic, in characteristics, builder);
+				GenerateFunctionPointerEquatabilityTests(pic, in characteristics, builder);
+				GenerateFunctionPointerFormattingTests(pic, in characteristics, builder);
+			}
 		});
 	}
 }
