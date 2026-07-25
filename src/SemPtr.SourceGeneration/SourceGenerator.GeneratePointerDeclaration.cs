@@ -495,28 +495,6 @@ internal partial class SourceGenerator
 		}
 
 		builder.Append($$"""
-
-				/// <summary>
-				/// Converts a raw pointer to a <see cref="{{typeNameCRef}}"/>.
-				/// </summary>
-				/// <param name="raw">The raw pointer to convert.</param>
-				/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same target as the specified <paramref name="raw"/> pointer.</returns>
-				/// <remarks>
-				/// <para>
-				/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
-				/// </para>
-				/// </remarks>
-				/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
-				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe static implicit operator {{typeName}}({{rawPointerType}} raw) => FromRaw(raw);
-
-				/// <summary>
-				/// Converts a <see cref="{{typeNameCRef}}"/> to a raw pointer.
-				/// </summary>
-				/// <param name="pointer">The <see cref="{{typeNameCRef}}"/> to convert.</param>
-				/// <returns>A raw pointer that points to the same target as the specified <paramref name="pointer"/>.</returns>
-				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe static explicit operator {{rawPointerType}}({{typeName}} pointer) => pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
 			}
 			
 			#nullable restore

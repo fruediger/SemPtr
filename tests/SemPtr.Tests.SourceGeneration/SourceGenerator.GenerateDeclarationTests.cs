@@ -144,25 +144,6 @@ partial class SourceGenerator
 					var pointer = {{typeName}}.FromRaw(raw);
 					Assert.Equal((nuint)raw, pointer.AsUIntPtr);
 				}
-
-				[Fact]
-				public unsafe void ImplicitConversion_FromRawPointer_SetsRaw()
-				{
-					using var buffer = new NativeArray<int>(1);
-					var raw = {{rawExpr}};
-					{{typeName}} pointer = raw;
-					Assert.Equal((nint)raw, (nint)pointer.Raw);
-				}
-
-				[Fact]
-				public unsafe void ExplicitConversion_ToRawPointer_ReturnsRaw()
-				{
-					using var buffer = new NativeArray<int>(1);
-					var raw = {{rawExpr}};
-					var pointer = {{typeName}}.FromRaw(raw);
-					var converted = ({{rawType}})pointer;
-					Assert.Equal((nint)raw, (nint)converted);
-				}
 			}
 			""");
 
