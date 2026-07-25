@@ -85,13 +85,19 @@ internal readonly struct PointerCharacteristics(Nullability nullability, Persist
 
 	readonly bool IEquatable<PointerCharacteristics>.Equals(PointerCharacteristics other) => Equals(other);
 
-	public readonly override int GetHashCode() => HashCode.Combine(
-		mNullability,
-		mPersistency,
-		mSequencability,
-		mAccessibility,
-		mTypeability
-	);
+	public readonly override int GetHashCode()
+	{
+		unchecked
+		{
+			var hash = 17;
+			hash = hash * 31 + mNullability.GetHashCode();
+			hash = hash * 31 + mPersistency.GetHashCode();
+			hash = hash * 31 + mSequencability.GetHashCode();
+			hash = hash * 31 + mAccessibility.GetHashCode();
+			hash = hash * 31 + mTypeability.GetHashCode();
+			return hash;
+		}
+	}
 
 	public readonly override string ToString()
 		=> $"{{ {nameof(Nullability)}: {mNullability}, {

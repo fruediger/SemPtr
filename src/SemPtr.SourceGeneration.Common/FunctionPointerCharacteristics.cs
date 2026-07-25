@@ -61,11 +61,17 @@ internal readonly struct FunctionPointerCharacteristics(Nullability nullability,
 
 	bool IEquatable<FunctionPointerCharacteristics>.Equals(FunctionPointerCharacteristics other) => Equals(other);
 
-	public readonly override int GetHashCode() => HashCode.Combine(
-		mNullability,
-		mPersistency,
-		mTypeability
-	);
+	public readonly override int GetHashCode()
+	{
+		unchecked
+		{
+			var hash = 17;
+			hash = hash * 31 + mNullability.GetHashCode();
+			hash = hash * 31 + mPersistency.GetHashCode();
+			hash = hash * 31 + mTypeability.GetHashCode();
+			return hash;
+		}
+	}
 
 	public readonly override string ToString()
 		=> $"{{ {nameof(Nullability)}: {mNullability}, {
