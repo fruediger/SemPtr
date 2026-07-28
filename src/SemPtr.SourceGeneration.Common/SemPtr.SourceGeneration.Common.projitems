@@ -6,7 +6,7 @@
     <SharedGUID>3ec8880f-a6a9-4901-b06f-c2552b9c1bb4</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>SemPtr.SourceGeneration.Common</Import_RootNamespace>
+    <Import_RootNamespace>SemPtr.SourceGeneration</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Accessibility.cs" />
