@@ -42,36 +42,36 @@ Currently, **SemPtr** identifies 5 distinct characteristics of pointer types:
 
 - **Nullability**: Whether the pointer can be `null` or not.\
   Possible manifestations:
-  - **non-nullable**: The library does its best to ensure that such pointers can't be passed around as `null` at runtime.\
-  Uses *no identification* in the name.
-  - **nullable**: The pointer can be `null` and the user has to check for `null` before they can try to access its target.\
-  Uses `Nullable` as an identification in the name.
+  - **non-nullable**: The library does its best to ensure that such pointers can't be passed around as `null` at runtime.
+    > Uses *no identification* in the name.
+  - **nullable**: The pointer can be `null` and the user has to check for `null` before they can try to access its target.
+    > Uses **`Nullable`** as an identification in the name.
 - **Persistency**: Whether the target of the pointer can outlive the initial scope of the pointer or not.\
   Possible manifestations:
-  - **transient**: The target is only guaranteed to be valid for the lifetime of the given pointer. The pointer can't escape its initial scope and can't be stored in a way that would allow the target to be accessed later.\
-  Uses *no identification* in the name.
-  - **persistent**: The target can outlive the initial scope of the pointer. The pointer can escape its initial scope and can be stored so that the target can be accessed later.\
-  Uses `Persistent` as an identification in the name.
+  - **transient**: The target is only guaranteed to be valid for the lifetime of the given pointer. The pointer can't escape its initial scope and can't be stored in a way that would allow the target to be accessed later.
+    > Uses *no identification* in the name.
+  - **persistent**: The target can outlive the initial scope of the pointer. The pointer can escape its initial scope and can be stored so that the target can be accessed later.
+    > Uses **`Persistent`** as an identification in the name.
 - **Sequencability**: Whether the pointer points to a single target or points to/into a sequence of targets.\
   Possible manifestations:
-  - **object target**: The pointer points to a single object as its target. Only that target can be accessed through the pointer and pointer arithmetic is not allowed on such pointers.\
-  Uses *no identification* in the name.
-  - **sequence target**: The pointer points to a sequence of objects as its target, possibly at the start of such a sequence or at some target within the sequence. Other targets in the sequence can be accessed through pointer or using pointer arithmetic on such pointers.\
-  Uses `Sequence` as an identification in the name.
+  - **object target**: The pointer points to a single object as its target. Only that target can be accessed through the pointer and pointer arithmetic is not allowed on such pointers.
+    > Uses *no identification* in the name.
+  - **sequence target**: The pointer points to a sequence of objects as its target, possibly at the start of such a sequence or at some target within the sequence. Other targets in the sequence can be accessed through pointer or using pointer arithmetic on such pointers.
+    > Uses **`Sequence`** as an identification in the name.
 - **Accessibility**: Whether the target of the pointer can be modified or not.\
   Possible manifestations:
-  - **random**/**read-write**: The target can be read and modified through the pointer. The closest analogy in terms of C# references would be `ref`.\
-  Uses *no identification* in the name.
-  - **read-only**: The target can only be read through the pointer and can't be modified. The closest analogy in terms of C# references would be `ref readonly`/`in`.\
-  Uses `ReadOnly` as an identification in the name.
-  - **write-first**/**uninitialized**: The target must be written to first before it can be read. Most of the time, such targets should be written to, as the intent communicates that the target should be initialized. The closest analogy in terms of C# references would be `out`.\
-  Uses `Uninitialized` as an identification in the name.
+  - **random**/**read-write**: The target can be read and modified through the pointer. The closest analogy in terms of C# references would be `ref`.
+    > Uses *no identification* in the name.
+  - **read-only**: The target can only be read through the pointer and can't be modified. The closest analogy in terms of C# references would be `ref readonly`/`in`.
+    > Uses **`ReadOnly`** as an identification in the name.
+  - **write-first**/**uninitialized**: The target must be written to first before it can be read. Most of the time, such targets should be written to, as the intent communicates that the target should be initialized. The closest analogy in terms of C# references would be `out`.
+    > Uses **`Uninitialized`** as an identification in the name.
 - **Typability**: Whether the type of the target is communicated through the pointer type or not.\
   Possible manifestations:
-  - **untyped**: The type of the target is not specified. The target can't be accessed and the pointer must first be cast to a *typed* variant before trying to do so. Pointer arithmetic is also not allowed on such pointers as it wouldn't be well-defined.\
-  Uses *no identification* in the name.
-  - **typed**: The type of the target is specified and the target can be accessed through the pointer as a value of that type. Pointer arithmetic is well-defined on such pointers and can be used as long as the pointer is a *sequence* pointer.\
-  Uses C# generic type parameters, e.g., `<T>` to specify the type of the target.
+  - **untyped**: The type of the target is not specified. The target can't be accessed and the pointer must first be cast to a *typed* variant before trying to do so. Pointer arithmetic is also not allowed on such pointers as it wouldn't be well-defined.
+    > Uses *no identification* in the name.
+  - **typed**: The type of the target is specified and the target can be accessed through the pointer as a value of that type. Pointer arithmetic is well-defined on such pointers and can be used as long as the pointer is a *sequence* pointer.
+    > Uses C# generic type parameters, e.g., **`<T>`** to specify the type of the target.
 
 The combination of all possible manifestations of these characteristics then result in the semantic pointers that are provided by the library.
 
@@ -79,7 +79,7 @@ The naming scheme of individual pointer types is as follows:
 
 `[Nullability][Persistency][Sequencability]Pointer[Accessibility][Typability]`
 
-where `[Nullability]` is either `Nullable` or empty, `[Persistency]` is either `Persistent` or empty, `[Sequencability]` is either `Sequence` or empty, `[Accessibility]` is either `ReadOnly`, `Uninitialized`, or empty, and `[Typability]` is either `<T>` (with `T` being the type of the target) or empty.
+> where `[Nullability]` is either `Nullable` or empty, `[Persistency]` is either `Persistent` or empty, `[Sequencability]` is either `Sequence` or empty, `[Accessibility]` is either `ReadOnly`, `Uninitialized`, or empty, and `[Typability]` is either `<T>` (with `T` being the type of the target) or empty.
 
 ### Function pointers
 
