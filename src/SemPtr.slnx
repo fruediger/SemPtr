@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="SemPtr.Common/SemPtr.Common.shproj" Id="a40228ce-b98f-4fae-bf77-d43fa227a66a" />
+    <Project Path="SemPtr.FunctionPointerGenerator/SemPtr.FunctionPointerGenerator.csproj" Id="9bf70904-843f-4b91-88b2-9ff9f03568a3" />
     <Project Path="SemPtr.SourceGeneration.Common/SemPtr.SourceGeneration.Common.shproj" Id="3ec8880f-a6a9-4901-b06f-c2552b9c1bb4" />
     <Project Path="SemPtr.SourceGeneration/SemPtr.SourceGeneration.csproj" Id="4c861368-da74-41e0-9f93-a063d99d6eed" />
     <Project Path="SemPtr/SemPtr.csproj" Id="e07d7a2e-5d23-42a0-af5f-d0dd48786491" />

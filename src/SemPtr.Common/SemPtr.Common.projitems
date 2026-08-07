@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a40228ce-b98f-4fae-bf77-d43fa227a66a</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>SemPtr</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerDefaultExtensionsAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerExtensionsAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerExtensionsBaseAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerExtensionsOptionsAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerGenerationOption.cs" />
+  </ItemGroup>
+</Project>

@@ -454,8 +454,11 @@ partial class SourceGenerator
 						/// The <paramref name="delegate"/> must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
 						/// </para>
 						/// </remarks>
-						/// <exception cref="global::System.ArgumentNullException"><paramref name="delegate"/> is <c><see langword="null"/></c></exception>
-						public static {{typeName}} {{Config.FunctionPointerInterfaceFromDelegateMethodName}}([global::System.Diagnostics.CodeAnalysis.NotNull] {{Config.GenerationDelegateTypeParameterName}}? @delegate)
+						/// <exception cref="global::System.ArgumentNullException"><paramref name="delegate"/> is <c><see langword="null"/></c></exception>					
+					#pragma warning disable CS8767 // The nullability of the `@delegate` parameter doesn't match the inherited nullability of the corresponding parameter in the interface declaration.
+					                               // That's fine here and intentional, because we check for null and throw an exception if it is, as well as warn the user that the parameter can't be null through a `DisallowNull` attribute and through documentation.
+						public static {{typeName}} {{Config.FunctionPointerInterfaceFromDelegateMethodName}}([global::System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull] {{Config.GenerationDelegateTypeParameterName}}? @delegate)
+					#pragma warning restore CS8767
 						{
 							unsafe
 							{
@@ -563,7 +566,7 @@ partial class SourceGenerator
 					/// <inheritdoc cref="{{typedTypeNameCRef}}.{{Config.FunctionPointerInterfaceFromDelegateMethodName}}({{Config.GenerationDelegateTypeParameterName}})"/>
 					/// <typeparam name="{{Config.GenerationDelegateTypeParameterName}}">The type of the <see langword="delegate"/> representing the signature of the target function that the resulting <see cref="{{typedTypeNameCRef}}"/> will point to.</typeparam>
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public static {{typedTypeName}} {{Config.FunctionPointerInterfaceFromDelegateMethodName}}<{{Config.GenerationDelegateTypeParameterName}}>({{typeCharacteristics.Nullability switch { not Nullability.Nullable => $"[global::System.Diagnostics.CodeAnalysis.NotNull] ", _ => string.Empty }}}{{Config.GenerationDelegateTypeParameterName}}? @delegate)
+					public static {{typedTypeName}} {{Config.FunctionPointerInterfaceFromDelegateMethodName}}<{{Config.GenerationDelegateTypeParameterName}}>({{Config.GenerationDelegateTypeParameterName}}{{characteristics.Nullability switch { Nullability.Nullable => "?", _ => string.Empty }}} @delegate)
 						where {{Config.GenerationDelegateTypeParameterName}} : notnull, global::System.Delegate
 						=> {{typedTypeName}}.{{Config.FunctionPointerInterfaceFromDelegateMethodName}}(@delegate);
 

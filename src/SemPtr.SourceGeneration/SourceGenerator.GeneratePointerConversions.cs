@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace SemPtr.SourceGeneration;
