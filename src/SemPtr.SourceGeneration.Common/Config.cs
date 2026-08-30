@@ -7,12 +7,13 @@ internal static class Config
 	public const string FunctionPointerInterfaceFromDelegateMethodName = "FromDelegate";
 	public const string FunctionPointerInterfaceToDelegateMethodName = "ToDelegate";
 	public const string GenerationDelegateTypeParameterName = "TDelegate";
-	public const string GenerationExtensionArgumentName = "__ptr__";
+	public const string GenerationExtensionArgumentName = "pointer";
+	public const string GenerationFunctionPointerExtensionsTypeNameFormat = "{0}Extensions";
+	public const string GenerationInvokeMethodName = "Invoke";
 	public const string GenerationRawPointerFieldName = "mRaw";
 	public const string GenerationTargetPropertyName = "Target";
 	public const string GenerationTypeParameterName = "T";
 	public const string InternalNamespaceName = "SemPtr.Internal";
-	public const string PointerDispatchInterfaceTypeName = "IPointerDispatch";
 	public const string PointerExtensionsTypeName = "PointerExtensions";
 	public const string PointerInterfaceTypeAsIntPtrPropertyName = "AsIntPtr";
 	public const string PointerInterfaceTypeAsUIntPtrPropertyName = "AsUIntPtr";

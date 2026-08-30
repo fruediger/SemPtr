@@ -9,10 +9,8 @@
     <Import_RootNamespace>SemPtr</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerDefaultExtensionsAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerExtensionsAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerExtensionsBaseAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerExtensionsOptionsAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerGenerationOption.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerGenerationAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerGeneration.cs" />
   </ItemGroup>
 </Project>
