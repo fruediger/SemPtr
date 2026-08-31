@@ -83,6 +83,17 @@ The naming scheme of individual pointer types is as follows:
 
 See the [data pointer usage examples](#data-pointer-usage-examples) section for more information on how to use those pointers in practice.
 
+> [!NOTE]
+> Please note that **lifetime management** and **ownership** are deliberately not part of the semantic characterization of pointer types.
+>
+> While it's true that those would make for good candidates for additional characteristics of pointer types, they would also be hard to achieve, if at all possible.
+> That is why **SemPtr** intentionally does not implement those characteristics, at least not for now.
+>
+> **Lifetime management** is near close to impossible to achieve by language means alone. It is more of something that needs to be enforced at runtime, where it's still hard to do correctly.\
+> Note that the **Persistency** characteristic of pointer types already handles some aspects of lifetime management and can be used to distinguish between short-lived and long-lived targets, which might be already sufficient for a good number of use cases.
+>
+> **Ownership** is also hard to achieve, at least in C#. While there would be some ways to implement ownership concepts in API, there's an equal amount of ways to bypass them, even accidentally. That's why introducing such a characteristic without the backing of the language itself would not really be worth it.
+
 ### Function pointers
 
 Function pointers are supported in a very similar way to data pointers, although their implementation and usage is a bit different.
@@ -126,6 +137,27 @@ However, that's entirely handled by the `delegate` type that is used in the func
 For example, you can specify the calling convention by annotating the `delegate` with an [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute) or,
 in the recommended way, by using [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96).\
 See the [function pointer usage examples](#function-pointer-usage-examples) section for more information on how to use those attributes to configure the call signatures of function pointers and their target functions.
+
+### What makes function pointers different from data pointers
+
+Aside from the obvious semantic differences between data and function pointers, data pointers pointing to, well, data and function pointers pointing to executable code,
+this project also handles them slightly differently in terms of their implementations.
+
+While data pointers have their members (e.g., `Target`, `Raw`, `FromRaw`, etc.) implemented directly as members of their respective types, function pointers, at least *typed* ones, can't have this kind of easy-to-do implementation.
+
+*Typed* function pointers have their target function's signature specified by a `delegate` type argument passed for their generic `TDelegate` type parameter.\
+Therefore, their `Raw` and `FromRaw` members should have a signature based on the corresponding C# raw function pointer type, which is derived from the given `delegate` type argument.
+For example, a `[FunctionPointer(CallConvs = [typeof(CallConvCdecl)])] delegate void MyFunction(int x, int y)` definition should result in a `delegate* unmanaged[Cdecl]<int, int, void>` raw function pointer type used as the return type/parameter type of the `Raw`/`FromRaw` members.\
+Not to mention the `Invoke` member, which not only has to take the original signature of the `delegate` type into account, but must also correctly call the target function based on the calling convention specified for the `delegate` type by attributes like [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48).\
+Because of the nature of those things, this is not easily achievable in a "static" sense by the means of C#'s type system alone.
+
+**SemPtr** solves this issue by shipping a source generator alongside the main library that handles exactly this in a "dynamic" way by producing the correct members and their implementations as `extension` members at design time.\
+For that, the source generator scans the whole code for usages of `delegate`s and generates the correct `Raw`, `FromRaw`, and `Invoke` members for all function pointer types that use those `delegate`s.
+Users don't even have to do anything to make this work, it just works out of the box *(well, sometimes, depending on the development environment you use, you need to save the source file containing such a usage to trigger the source generator to run)*.\
+Sadly, this inheritly comes with some performance implications at design time. That's why **SemPtr** allows you to exactly specify for which kinds of usages the source generator should generate the `extension` members, mitigating some of the performance drawbacks.
+See [`FunctionPointerGenerationAttribute`](src/SemPtr.Common/FunctionPointerGenerationAttribute.cs) for more information on how to configure the source generator.
+
+Users of the NuGet package don't have to do anything in particular to make all of this work, as the source generator is included in the NuGet package and will be automatically installed when referencing the package.
 
 ## How to use
 
