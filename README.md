@@ -1,5 +1,7 @@
 # SemPtr
 
+![SemPtr Banner](https://raw.githubusercontent.com/fruediger/SemPtr/main/assets/banner.png)
+
 **SemPtr** (short for **Semantic Pointers**) is a .NET library designed to overcome the limitations of traditional pointers (i.e., raw pointers) in C#.\
 It does this by *semantically naming* the pointer types it provides, categorizing them by their *semantic characteristics*, and using C#'s strong type system to enforce correct pointer usage at compile time and at runtime.
 
