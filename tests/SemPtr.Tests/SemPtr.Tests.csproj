@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SemPtr.Tests.SourceGeneration\SemPtr.Tests.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\..\src\SemPtr.FunctionPointerGenerator\SemPtr.FunctionPointerGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     <ProjectReference Include="..\..\src\SemPtr\SemPtr.csproj" />
   </ItemGroup>
 
