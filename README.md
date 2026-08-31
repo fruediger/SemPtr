@@ -1,81 +1,81 @@
 # SemPtr
 
-**SemPtr** or **Semantic Pointers** is a .NET library for overcoming the limitations of traditional pointers (i.e., raw pointers) in C#.\
-It does so by *semantically naming* the pointer types it provides, categorizing them by some *semantic characteristics*, and using the strong type system of C# to enforce the correct usage of pointers at compile time as well as at runtime.
+**SemPtr** (short for **Semantic Pointers**) is a .NET library designed to overcome the limitations of traditional pointers (i.e., raw pointers) in C#.\
+It does this by *semantically naming* the pointer types it provides, categorizing them by their *semantic characteristics*, and using C#'s strong type system to enforce correct pointer usage at compile time and at runtime.
 
 > [!NOTE]
-> While this project aims to provide a more expressive and thereby safer alternative to using raw pointers in C#, there are still many scenarios where even semantic pointers can be misused or handled incorrectly. This project *can't possibly* and *won't try to* prevent all possible misuses.
-> That being said, you should treat any kind of usage of pointers, even semantic pointers, as inherintly unsafe and should always be cautious when using them.
+> While this project aims to provide a more expressive and therefore safer alternative to raw pointers in C#, there are still many scenarios where even semantic pointers can be misused or handled incorrectly. This project *cannot* and *will not* prevent every possible misuse.
+> That said, you should treat any use of pointers, whether semantic or raw, as inherently unsafe and always exercise caution.
 
 ## How it works
 
 ### The inherent issue with raw pointers in C\#
 
-C# was never designed to treat pointers as a first-class citizen, while still allowing for them to be used to enable low-level programming. While complete for almost all scenarios, the expressiveness of working with raw pointers in C# is very rudimentary and limited.
+C# was never designed to treat pointers as a first-class citizen, even though it does allow them for low-level programming. While complete enough for most scenarios, the expressiveness of raw pointers in C# is very limited.
 
-If we ignore the comprehensive function pointer syntax in C#, the only way to express a pointer type in C# is by the syntax `T*`, where `T` is either a CLR type, another pointer type, or `void`. There are no `const T*` or other variations of pointer types like in C/C++ to express the semantics of the pointer through the type system. This is a huge limitation.
+If we ignore C#'s comprehensive function pointer syntax, the only way to express a pointer type in C# is by the syntax `T*`, where `T` is either a CLR type, another pointer type, or `void`. There are no `const T*` or other variations of pointer types like those in C/C++ to express the semantics of the pointer through the type system. This is a major limitation.
 
 These are some of the main limitations of raw pointers in C#:
 
 - no variation or expressiveness in pointer types
-- because of the former pointer, no enforcement of safety "guardrails" through the type system (e.g., no `const T*` to prevent modifications of the target)
-- pointer types cant participate in all of C#'s type expressions (e.g., you can't use `T*` as a generic type argument)
+- because of the previous point, no enforcement of safety guardrails through the type system (for example, no `const T*` to prevent modifications of the target)
+- pointer types cannot participate in all of C#'s type expressions (for example, you can't use `T*` as a generic type argument)
 
 > [!NOTE]
-> While there are primarily limitations with C#'s pointer types, there are also some good things about them:
-> For example, you're forced to use them in an `unsafe` context (although, there are some relaxations to this in the upcoming C# 15 release), which is a good thing because it forces the user to think about the implications of working with pointers.
-> Sadly, this library can't replicate this enforcement, so users should always be aware when using semantic pointers and be equally cautious as they would be when using raw pointers.
+> While C#'s pointer types have clear limitations, they also have some advantages:
+> For example, you are forced to use them in an `unsafe` context (although there are some relaxations in the upcoming C# 15 release), which is a good thing because it forces the user to think about the implications of working with pointers.
+> Sadly, this library cannot replicate that enforcement, so users should always be mindful when using semantic pointers and remain equally cautious as they would with raw pointers.
 
 ### Solving the issue with semantic naming of custom pointer types
 
-The solution to those limitations is to create a bunch of custom types that represent pointers, each with a specific semantic meaning, and let the type system enforce the correct usage. This is what **SemPtr** aims to do.
+The solution is to create a set of custom types that represent pointers, each with a specific semantic meaning, and let the type system enforce the correct usage. This is what **SemPtr** aims to do.
 
-To achieve this, the library provides a set of pointer types that are *semantically named* to express the intended usage of the pointer. I.e., you can infer the semantics of the pointer type from its name, and, because of each characteristic of pointer being its own type, the strong type system of C# will do the rest.
+To achieve this, the library provides a set of pointer types that are *semantically named* to express their intended usage. In other words, you can infer the semantics of a pointer type from its name, and because each characteristic of a pointer is represented by its own type, C#'s strong type system does the rest.
 
-For example, there's a `NullablePointerReadOnly<T>` type that represents a pointer that *can be `null`* and points to a *read-only* target of type *`T`*.
+For example, `NullablePointerReadOnly<T>` represents a pointer that *can be `null`* and points to a *read-only* target of type *`T`*.
 
 ### Semantic characterization of pointer types
 
-For that and for the semantic naming scheme, the semantics of the pointer types are broken down into a set of characteristics, which define the intent of the pointer type as well as its name.
+For that purpose, and for the semantic naming scheme, the semantics of the pointer types are broken down into a set of characteristics that define both the intent of the pointer type and its name.
 
 Currently, **SemPtr** identifies 5 distinct characteristics of pointer types:
 
 - **Nullability**: Whether the pointer can be `null` or not.\
   Possible manifestations:
-  - **non-nullable**: The library does its best to ensure that such pointers can't be passed around as `null` at runtime.
+  - **non-nullable**: The library does its best to ensure that such pointers cannot be passed around as `null` at runtime.
     > Uses *no identification* in the name.
-  - **nullable**: The pointer can be `null` and the user has to check for `null` before they can try to access its target.
-    > Uses **`Nullable`** as an identification in the name.
+  - **nullable**: The pointer can be `null`, and the user has to check for `null` before they can try to access its target.
+    > Uses **`Nullable`** as an identifier in the name.
 - **Persistency**: Whether the target of the pointer can outlive the initial scope of the pointer or not.\
   Possible manifestations:
-  - **transient**: The target is only guaranteed to be valid for the lifetime of the given pointer. The pointer can't escape its initial scope and can't be stored in a way that would allow the target to be accessed later.
+  - **transient**: The target is only guaranteed to be valid for the lifetime of the given pointer. The pointer cannot escape its initial scope or be stored in a way that would allow the target to be accessed later.
     > Uses *no identification* in the name.
-  - **persistent**: The target can outlive the initial scope of the pointer. The pointer can escape its initial scope and can be stored so that the target can be accessed later.
-    > Uses **`Persistent`** as an identification in the name.
-- **Sequencability**: Whether the pointer points to a single target or points to/into a sequence of targets.\
+  - **persistent**: The target can outlive the initial scope of the pointer. The pointer can escape its initial scope and be stored so that the target can be accessed later.
+    > Uses **`Persistent`** as an identifier in the name.
+- **Sequencability**: Whether the pointer points to a single target or to/into a sequence of targets.\
   Possible manifestations:
-  - **object target**: The pointer points to a single object as its target. Only that target can be accessed through the pointer and pointer arithmetic is not allowed on such pointers.
+  - **object target**: The pointer points to a single object as its target. Only that target can be accessed through the pointer, and pointer arithmetic is not allowed on such pointers.
     > Uses *no identification* in the name.
-  - **sequence target**: The pointer points to a sequence of objects as its target, possibly at the start of such a sequence or at some target within the sequence. Other targets in the sequence can be accessed through pointer or using pointer arithmetic on such pointers.
-    > Uses **`Sequence`** as an identification in the name.
+  - **sequence target**: The pointer points to a sequence of objects as its target, possibly at the start of such a sequence or at some target within it. Other targets in the sequence can be accessed through the pointer or by using pointer arithmetic.
+    > Uses **`Sequence`** as an identifier in the name.
 - **Accessibility**: Whether the target of the pointer can be modified or not.\
   Possible manifestations:
-  - **random**/**read-write**: The target can be read and modified through the pointer. The closest analogy in terms of C# references would be `ref`.
+  - **random**/**read-write**: The target can be read and modified through the pointer. The closest analogy in C# references would be `ref`.
     > Uses *no identification* in the name.
-  - **read-only**: The target can only be read through the pointer and can't be modified. The closest analogy in terms of C# references would be `ref readonly`/`in`.
-    > Uses **`ReadOnly`** as an identification in the name.
-  - **write-first**/**uninitialized**: The target must be written to first before it can be read. Most of the time, such targets should be written to, as the intent communicates that the target should be initialized. The closest analogy in terms of C# references would be `out`.
-    > Uses **`Uninitialized`** as an identification in the name.
+  - **read-only**: The target can only be read through the pointer and cannot be modified. The closest analogy in C# references would be `ref readonly`/`in`.
+    > Uses **`ReadOnly`** as an identifier in the name.
+  - **write-first**/**uninitialized**: The target must be written to first before it can be read. Most of the time, such targets should be initialized as the intent communicates that they should be written to. The closest analogy in C# references would be `out`.
+    > Uses **`Uninitialized`** as an identifier in the name.
 - **Typability**: Whether the type of the target is communicated through the pointer type or not.\
   Possible manifestations:
-  - **untyped**: The type of the target is not specified. The target can't be accessed and the pointer must first be cast to a *typed* variant before trying to do so. Pointer arithmetic is also not allowed on such pointers as it wouldn't be well-defined.
+  - **untyped**: The type of the target is not specified. The target cannot be accessed, and the pointer must first be cast to a *typed* variant before trying to do so. Pointer arithmetic is also not allowed on such pointers because it would not be well-defined.
     > Uses *no identification* in the name.
-  - **typed**: The type of the target is specified and the target can be accessed through the pointer as a value of that type. Pointer arithmetic is well-defined on such pointers and can be used as long as the pointer is a *sequence* pointer.
-    > Uses C# generic type parameters, e.g., **`<T>`** to specify the type of the target.
+  - **typed**: The type of the target is specified, and the target can be accessed through the pointer as a value of that type. Pointer arithmetic is well-defined on such pointers and can be used as long as the pointer is a *sequence* pointer.
+    > Uses C# generic type parameters, e.g., **`<T>`**, to specify the type of the target.
 
-The combination of all possible manifestations of these characteristics then result in the semantic pointers that are provided by the library.
+The combination of all possible manifestations of these characteristics results in the semantic pointers provided by the library.
 
-The naming scheme of individual pointer types is as follows:
+The naming scheme for individual pointer types is as follows:
 
 `[Nullability][Persistency][Sequencability]Pointer[Accessibility][Typability]`
 
@@ -86,17 +86,17 @@ See the [data pointer usage examples](#data-pointer-usage-examples) section for 
 > [!NOTE]
 > Please note that **lifetime management** and **ownership** are deliberately not part of the semantic characterization of pointer types.
 >
-> While it's true that those would make for good candidates for additional characteristics of pointer types, they would also be hard to achieve, if at all possible.
+> While it is true that those would make good candidates for additional pointer-type characteristics, they would also be difficult to achieve, if at all possible.
 > That is why **SemPtr** intentionally does not implement those characteristics, at least not for now.
 >
-> **Lifetime management** is near close to impossible to achieve by language means alone. It is more of something that needs to be enforced at runtime, where it's still hard to do correctly.\
-> Note that the **Persistency** characteristic of pointer types already handles some aspects of lifetime management and can be used to distinguish between short-lived and long-lived targets, which might be already sufficient for a good number of use cases.
+> **Lifetime management** is nearly impossible to achieve by language means alone. It is more something that must be enforced at runtime, where it is still difficult to do correctly.\
+> Note that the **Persistency** characteristic of pointer types already handles some aspects of lifetime management and can be used to distinguish between short-lived and long-lived targets, which may already be sufficient for many use cases.
 >
-> **Ownership** is also hard to achieve, at least in C#. While there would be some ways to implement ownership concepts in API, there's an equal amount of ways to bypass them, even accidentally. That's why introducing such a characteristic without the backing of the language itself would not really be worth it.
+> **Ownership** is also difficult to achieve, at least in C#. While there are some ways to implement ownership concepts in an API, there are also an equal number of ways to bypass them, even accidentally. That is why introducing such a characteristic without the backing of the language itself would not really be worth it.
 
 ### Function pointers
 
-Function pointers are supported in a very similar way to data pointers, although their implementation and usage is a bit different.
+Function pointers are supported in a very similar way to data pointers, although their implementation and usage are a bit different.
 
 First and foremost, function pointers are also semantically named and categorized by some characteristics.
 
@@ -104,60 +104,58 @@ Currently, **SemPtr** identifies 3 distinct characteristics of function pointer 
 - **Nullability**: Whether the function pointer can be `null` or not.\
   *This is similar to the **nullability** characteristic of data pointers.*\
   Possible manifestations:
-  - **non-nullable**: The library does its best to ensure that such function pointers can't be passed around as `null` at runtime.
+  - **non-nullable**: The library does its best to ensure that such function pointers cannot be passed around as `null` at runtime.
     > Uses *no identification* in the name.
-  - **nullable**: The function pointer can be `null` and the user has to check for `null` before they can try to invoke it.
-    > Uses **`Nullable`** as an identification in the name.
+  - **nullable**: The function pointer can be `null`, and the user has to check for `null` before trying to invoke it.
+    > Uses **`Nullable`** as an identifier in the name.
 - **Persistency**: Whether the function pointer can outlive the initial scope of the pointer or not.\
   *This is similar to the **persistency** characteristic of data pointers.*\
   Possible manifestations:
-  - **transient**: The function pointer is only guaranteed to be valid for the lifetime of the given pointer. The pointer can't escape its initial scope and can't be stored in a way that would allow the target function to be invoked later.
+  - **transient**: The function pointer is only guaranteed to be valid for the lifetime of the given pointer. The pointer cannot escape its initial scope or be stored in a way that would allow the target function to be invoked later.
     > Uses *no identification* in the name.
-  - **persistent**: The function pointer can outlive the initial scope of the pointer. The pointer can escape its initial scope and can be stored so that the target function can be invoked later.
-    > Uses **`Persistent`** as an identification in the name.
+  - **persistent**: The function pointer can outlive the initial scope of the pointer. The pointer can escape its initial scope and be stored so that the target function can be invoked later.
+    > Uses **`Persistent`** as an identifier in the name.
 - **Typability**: Whether the signature of the function is communicated through the function pointer type or not.\
   *This is analogous to the **typability** characteristic of data pointers. Instead of providing the call signature of the target function directly as part of the function pointer type signature, function pointer types can accept a generic `delegate` type parameter that specifies the target function's signature.*\
   Possible manifestations:
-  - **untyped**: The call signature of the target function is not specified. The function can't be invoked and the pointer must first be cast to a *typed* variant before trying to do so.
+  - **untyped**: The call signature of the target function is not specified. The function cannot be invoked, and the pointer must first be cast to a *typed* variant before trying to do so.
     > Uses *no identification* in the name.
-  - **typed**: The call signature of the target function is specified by a `delegate` type argument and the target function can be invoked in the way specified by that signature, given the function pointer type is non-nullable.
-    > Uses C# generic type parameters, e.g., **`<TDelegate>`** to specify the signature of the target function.
+  - **typed**: The call signature of the target function is specified by a `delegate` type argument, and the target function can be invoked in the way specified by that signature, provided the function pointer type is non-nullable.
+    > Uses C# generic type parameters, e.g., **`<TDelegate>`**, to specify the signature of the target function.
 
-The combination of all possible manifestations of these characteristics then result in the semantic function pointers that are provided by the library.
+The combination of all possible manifestations of these characteristics results in the semantic function pointers provided by the library.
 
-The naming scheme of individual function pointer types is as follows:
+The naming scheme for individual function pointer types is as follows:
 
 `[Nullability][Persistency]FunctionPointer[Typability]`
 
 > where `[Nullability]` is either `Nullable` or empty, `[Persistency]` is either `Persistent` or empty, and `[Typability]` is either `<TDelegate>` (with `TDelegate` being a `delegate` type that specifies the signature of the target function) or empty.
 
 One could assume that there should be more characteristics of function pointers, especially regarding the granularity of the target function's call signature.
-E.g., specifying the calling convention of the target function.\
-However, that's entirely handled by the `delegate` type that is used in the function pointer type.
-For example, you can specify the calling convention by annotating the `delegate` with an [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute) or,
-in the recommended way, by using [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96).\
+For example, specifying the calling convention of the target function.
+However, that is entirely handled by the `delegate` type used in the function pointer type.
+For example, you can specify the calling convention by annotating the `delegate` with an [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute), or, in the recommended way, by using [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96).\
 See the [function pointer usage examples](#function-pointer-usage-examples) section for more information on how to use those attributes to configure the call signatures of function pointers and their target functions.
 
 ### What makes function pointers different from data pointers
 
-Aside from the obvious semantic differences between data and function pointers, data pointers pointing to, well, data and function pointers pointing to executable code,
-this project also handles them slightly differently in terms of their implementations.
+Aside from the obvious semantic differences between data and function pointers, data pointers point to data, while function pointers point to executable code. This project also handles them slightly differently in terms of implementation.
 
-While data pointers have their members (e.g., `Target`, `Raw`, `FromRaw`, etc.) implemented directly as members of their respective types, function pointers, at least *typed* ones, can't have this kind of easy-to-do implementation.
+While data pointers have their members (for example, `Target`, `Raw`, and `FromRaw`) implemented directly as members of their respective types, function pointers, at least *typed* ones, cannot have this kind of easy-to-do implementation.
 
-*Typed* function pointers have their target function's signature specified by a `delegate` type argument passed for their generic `TDelegate` type parameter.\
-Therefore, their `Raw` and `FromRaw` members should have a signature based on the corresponding C# raw function pointer type, which is derived from the given `delegate` type argument.
-For example, a `[FunctionPointer(CallConvs = [typeof(CallConvCdecl)])] delegate void MyFunction(int x, int y)` definition should result in a `delegate* unmanaged[Cdecl]<int, int, void>` raw function pointer type used as the return type/parameter type of the `Raw`/`FromRaw` members.\
-Not to mention the `Invoke` member, which not only has to take the original signature of the `delegate` type into account, but must also correctly call the target function based on the calling convention specified for the `delegate` type by attributes like [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48).\
-Because of the nature of those things, this is not easily achievable in a "static" sense by the means of C#'s type system alone.
+*Typed* function pointers have their target function's signature specified by a `delegate` type argument passed as their generic `TDelegate` type parameter.\
+Therefore, their `Raw` and `FromRaw` members should have signatures based on the corresponding C# raw function pointer type, derived from the given `delegate` type argument.
+For example, a `[FunctionPointer(CallConvs = [typeof(CallConvCdecl)])] delegate void MyFunction(int x, int y)` definition should result in a `delegate* unmanaged[Cdecl]<int, int, void>` raw function pointer type used as the return type or parameter type of the `Raw`/`FromRaw` members.
+Not to mention the `Invoke` member, which not only has to take the original signature of the `delegate` type into account, but must also correctly call the target function based on the calling convention specified for the `delegate` type by attributes such as [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48).\
+Because of the nature of these requirements, this is not easily achievable in a "static" sense using C#'s type system alone.
 
-**SemPtr** solves this issue by shipping a source generator alongside the main library that handles exactly this in a "dynamic" way by producing the correct members and their implementations as `extension` members at design time.\
-For that, the source generator scans the whole code for usages of `delegate`s and generates the correct `Raw`, `FromRaw`, and `Invoke` members for all function pointer types that use those `delegate`s.
-Users don't even have to do anything to make this work, it just works out of the box *(well, sometimes, depending on the development environment you use, you need to save the source file containing such a usage to trigger the source generator to run)*.\
-Sadly, this inheritly comes with some performance implications at design time. That's why **SemPtr** allows you to exactly specify for which kinds of usages the source generator should generate the `extension` members, mitigating some of the performance drawbacks.
+**SemPtr** solves this issue by shipping a source generator alongside the main library that handles it in a "dynamic" way by producing the correct members and their implementations as `extension` members at design time.\
+For that, the source generator scans the code for usages of `delegate`s and generates the correct `Raw`, `FromRaw`, and `Invoke` members for all function pointer types that use those `delegate`s.
+Users do not even have to do anything to make this work; it just works out of the box *(well, sometimes, depending on the development environment you use, you need to save the source file containing such a usage to trigger the source generator to run)*.\
+Sadly, this inherently comes with some performance implications at design time. That is why **SemPtr** allows you to specify exactly for which kinds of usages the source generator should generate the `extension` members, mitigating some of the performance drawbacks.
 See [`FunctionPointerGenerationAttribute`](src/SemPtr.Common/FunctionPointerGenerationAttribute.cs) for more information on how to configure the source generator.
 
-Users of the NuGet package don't have to do anything in particular to make all of this work, as the source generator is included in the NuGet package and will be automatically installed when referencing the package.
+Users of the NuGet package do not have to do anything in particular to make all of this work, as the source generator is included in the NuGet package and is automatically installed when referencing the package.
 
 ## How to use
 
@@ -384,12 +382,12 @@ var result = funcPtr.Invoke(1, 2);
 
 ```
 
-Sometimes, you might not control the definition of the `delegate` type and therefore can't specify the calling convention with an attribute applied to the `delegate` type definition.
-For that case , you can use [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96) to specify the calling convention of the target function for a given `TDelegate` at assembly level.
+Sometimes, you might not control the definition of the `delegate` type and therefore cannot specify the calling convention with an attribute applied to the `delegate` type definition.
+For that case, you can use [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96) to specify the calling convention of the target function for a given `TDelegate` at assembly level.
 
 ```csharp
 
-// Suppose an external dependencies defines a delegate type like this:
+// Suppose an external dependency defines a delegate type like this:
 // delegate int MyFunction(int x, int y);
 
 // You can specify the calling convention of the target function for that delegate type at assembly level,
@@ -427,7 +425,7 @@ var result = funcPtr.Invoke(1, 2);
 
 ```csharp
 
-// A delegate type with a more complex signature, including scoped ref parameters, default valued parameters, and ref-return.
+// A delegate type with a more complex signature, including scoped ref parameters, default-valued parameters, and a ref return.
 delegate ref readonly int MyFunction(scoped ref int x, in int y, out int z, bool flag = true);
 
 // Variable arguments declarations work too, although, like in C#, the target function must accept the `params` argument as a single parameter.
@@ -454,7 +452,7 @@ varArgFuncPtr.Invoke(1, 2, 3, 4, 5);
 In the spirit of transparency, and in line with the [contributing guidelines](CONTRIBUTING.md), here is an overview of how AI was used in this project:
 
 - **Documentation.** AI was used to help write and improve documentation. The content itself comes from the author, but AI was used to clarify and clean up the writing.
-- **Infrastructural documents.** AI was used to help write project documents such as this [README.md](README.md), the [CONTRIBUTING.md](CONTRIBUTING.md), and the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+- **Infrastructural documents.** AI was used to help write project documents such as this [README.md](README.md), the [CONTRIBUTING.md](CONTRIBUTING.md), and the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). The contents were either written by the author and then improved by AI, or written by AI and then verified and approved by the author.
 - **Tests.** AI was used to help write some of the tests for the library, but the author has verified that all tests are correct and meaningful.
 - **Code review.** AI was used to review some of the author's code, and occasionally this turned out to be fruitful, catching bugs that might otherwise have been overlooked.
 - **Functional code.** No AI was used to write any functional code. All code in this project was written by the author.
