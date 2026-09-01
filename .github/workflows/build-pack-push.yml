@@ -1,0 +1,79 @@
+name: build-pack-push
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: Build configuration
+        required: false
+        default: Release
+        type: string
+      publish_to_nuget:
+        description: Publish packages to nuget.org
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-pack-push:
+    runs-on: ubuntu-latest
+    env:
+      CONFIGURATION: ${{ github.event.inputs.configuration || 'Release' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ./src
+
+      - name: Build
+        run: dotnet build ./src -c "$CONFIGURATION" --no-restore
+
+      - name: Pack (include symbols)
+        run: dotnet pack ./src -c "$CONFIGURATION" --include-symbols --no-build
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages-${{ env.CONFIGURATION }}
+          path: |
+            ./src/**/*.nupkg
+            ./src/**/*.snupkg
+          if-no-files-found: error
+
+      - name: Test (only when publishing)
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        run: dotnet test ./src -c "$CONFIGURATION" --no-build
+
+      - name: NuGet login (OIDC -> temporary API key)
+        id: nuget_login
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push .nupkg to nuget.org
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        run: |
+          dotnet nuget push ./src/**/*.nupkg \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
+
+      - name: Push .snupkg to nuget.org
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        run: |
+          dotnet nuget push ./src/**/*.snupkg \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
