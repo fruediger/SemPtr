@@ -1,4 +1,4 @@
-name: build-pack-push
+name: Build, Pack, and optionally Push to nuget.org
 
 on:
   workflow_dispatch:
