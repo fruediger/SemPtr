@@ -40,16 +40,18 @@ jobs:
         run: dotnet restore "$SOLUTION_DIR"
 
       - name: Build (solution)
-        run: dotnet build "$SOLUTION_DIR" \
-          -c "$CONFIGURATION" \
-          --no-restore
+        run: |
+          dotnet build "$SOLUTION_DIR" \
+            -c "$CONFIGURATION" \
+            --no-restore
 
       - name: Pack (main project only, include symbols)
-        run: dotnet pack "$SOLUTION_DIR"/"$PROJECT_DIR" \
-          -c "$CONFIGURATION" \
-          --no-build \
-          -p:IncludeSymbols=true \
-          -p:SymbolPackageFormat=snupkg
+        run: |
+          dotnet pack "$SOLUTION_DIR"/"$PROJECT_DIR" \
+            -c "$CONFIGURATION" \
+            --no-build \
+            -p:IncludeSymbols=true \
+            -p:SymbolPackageFormat=snupkg
 
       - name: Collect package files (flatten for artifact zip root)
         shell: bash
@@ -77,9 +79,10 @@ jobs:
 
       - name: Test (solution, only when publishing)
         if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
-        run: dotnet test "$SOLUTION_DIR" \
-          -c "$CONFIGURATION" \
-          --no-build
+        run: |
+          dotnet test "$SOLUTION_DIR" \
+            -c "$CONFIGURATION" \
+            --no-build
 
       - name: NuGet login (OIDC -> temporary API key)
         id: nuget_login
