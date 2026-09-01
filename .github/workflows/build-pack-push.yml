@@ -23,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CONFIGURATION: ${{ github.event.inputs.configuration || 'Release' }}
+      SOLUTION_DIR: ./src
+      PROJECT_DIR: SemPtr
+      STAGING_DIR: ./artifacts/nuget
 
     steps:
       - name: Checkout
@@ -33,27 +36,42 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore
-        run: dotnet restore ./src
+      - name: Restore (solution)
+        run: dotnet restore "$SOLUTION_DIR"
 
-      - name: Build
-        run: dotnet build ./src -c "$CONFIGURATION" --no-restore
+      - name: Build (solution)
+        run: dotnet build "$SOLUTION_DIR" -c "$CONFIGURATION" --no-restore
 
-      - name: Pack (include symbols)
-        run: dotnet pack ./src -c "$CONFIGURATION" --include-symbols --no-build
+      - name: Pack (main project only, include symbols)
+        run: dotnet pack "$SOLUTION_DIR"/"$PROJECT_DIR" -c "$CONFIGURATION" --include-symbols --no-build
+
+      - name: Collect package files (flatten for artifact zip root)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGING_DIR"
+
+          shopt -s nullglob globstar
+          files=( "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.nupkg "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.snupkg )
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No package files found under $SOLUTION_DIR/$PROJECT_DIR"
+            exit 1
+          fi
+
+          cp -f "${files[@]}" "$STAGING_DIR"/
+          ls -la "$STAGING_DIR"
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nuget-packages-${{ env.CONFIGURATION }}
-          path: |
-            ./src/**/*.nupkg
-            ./src/**/*.snupkg
+          path: ${{ env.STAGING_DIR }}/*
           if-no-files-found: error
 
-      - name: Test (only when publishing)
+      - name: Test (solution, only when publishing)
         if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
-        run: dotnet test ./src -c "$CONFIGURATION" --no-build
+        run: dotnet test "$SOLUTION_DIR" -c "$CONFIGURATION" --no-build
 
       - name: NuGet login (OIDC -> temporary API key)
         id: nuget_login
@@ -65,7 +83,7 @@ jobs:
       - name: Push .nupkg to nuget.org
         if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
         run: |
-          dotnet nuget push ./src/**/*.nupkg \
+          dotnet nuget push "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.nupkg \
             --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
             --source "https://api.nuget.org/v3/index.json" \
             --skip-duplicate
@@ -73,7 +91,7 @@ jobs:
       - name: Push .snupkg to nuget.org
         if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
         run: |
-          dotnet nuget push ./src/**/*.snupkg \
+          dotnet nuget push "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.snupkg \
             --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
             --source "https://api.nuget.org/v3/index.json" \
             --skip-duplicate
