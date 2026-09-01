@@ -8,7 +8,22 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
+    <PackageId>SemPtr</PackageId>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionSuffix>alpha.1</VersionSuffix>
+    <Description>Semantic Pointers for C#</Description>
+    <Authors>Felix Rüdiger</Authors>
+
+    <PackageProjectUrl>https://github.com/fruediger/SemPtr</PackageProjectUrl>
+    <PackageTags>semptr;semantic;pointer</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryUrl>https://github.com/fruediger/SemPtr</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   
   <ItemGroup>
@@ -20,7 +35,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../../assets/icon.png" Pack="true" PackagePath="" />
     <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../SemPtr.FunctionPointerGenerator/bin/$(Configuration)/netstandard2.0/SemPtr.FunctionPointerGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
   </ItemGroup>
 
   <Import Project="..\SemPtr.Common\SemPtr.Common.projitems" Label="Shared" />
