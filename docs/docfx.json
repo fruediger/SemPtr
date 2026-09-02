@@ -1,0 +1,56 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src/SemPtr",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api",
+      "includeExplicitInterfaceImplementations": false,
+      "memberLayout": "separatePages"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "templates/SingulinkFX/singulinkfx"
+    ],
+    "globalMetadata": {
+      "_appName": "SemPtr",
+      "_appTitle": "SemPtr",
+      "_appFaviconPath": "images/favicon.ico",
+      "_appLogoPath": "images/logo.png",
+      "_appFooter": "Documentation generated with <strong><a href=\"https://dotnet.github.io/docfx/\">DocFX</a></strong><br>Using <strong><a href=\"https://github.com/Singulink/SingulinkFX\">SingulinkFX</a></strong> as the template",
+      "_copyrightFooter": "© 2026 Felix Rüdiger",
+      "_enableSearch": true,
+      "_disableSideFilter": false,
+      "_enableNewTab": true,
+      "_disableContribution": false,
+      "_disableBreadcrumb": false,
+      "pdf": false
+    }
+  }
+}
