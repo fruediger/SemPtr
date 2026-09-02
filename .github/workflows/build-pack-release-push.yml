@@ -163,6 +163,31 @@ jobs:
             exit 1
           fi
 
+      - name: Build release body
+        id: release_body
+        if: ${{ github.event.inputs.create_github_release == 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NEW_TAG: ${{ steps.release_meta.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          previous_tag="$(gh api "repos/$REPO/releases?per_page=1" --jq '.[0].tag_name // empty')"
+
+          if [ -n "$previous_tag" ]; then
+            info="compare/$previous_tag...$NEW_TAG"
+          else
+            info="commits/$NEW_TAG"
+          fi
+
+          {
+            echo "body<<EOF"
+            echo "Changelog: https://github.com/$REPO/$info"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub release and upload packages
         id: gh_release
         if: ${{ github.event.inputs.create_github_release == 'true' }}
@@ -172,6 +197,7 @@ jobs:
           tag_name: ${{ steps.release_meta.outputs.release_tag }}
           name: ${{ steps.release_meta.outputs.release_name }}
           prerelease: ${{ steps.release_meta.outputs.package_is_prerelease }}
+          body: ${{ steps.release_body.outputs.body }}
           fail_on_unmatched_files: true
           files: |
             ${{ steps.release_meta.outputs.nupkg_path }}
