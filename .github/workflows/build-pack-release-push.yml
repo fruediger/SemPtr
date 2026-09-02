@@ -1,0 +1,207 @@
+name: Build, Pack, and optionally Release to GitHub and/or Push to nuget.org
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: Build configuration
+        required: false
+        default: Release
+        type: string
+      create_github_release:
+        description: Create a GitHub Release and upload packages
+        required: false
+        default: false
+        type: boolean
+      publish_to_nuget:
+        description: Publish packages to nuget.org
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-pack-release-push:
+    runs-on: ubuntu-latest
+    env:
+      CONFIGURATION: ${{ github.event.inputs.configuration || 'Release' }}
+      SOLUTION_DIR: ./src
+      PROJECT_DIR: SemPtr
+      STAGING_DIR: ./artifacts/nuget
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore (solution)
+        run: dotnet restore "$SOLUTION_DIR"
+
+      - name: Build (solution)
+        run: |
+          dotnet build "$SOLUTION_DIR" \
+            -c "$CONFIGURATION" \
+            --no-restore
+
+      - name: Pack (main project only, include symbols)
+        run: |
+          dotnet pack "$SOLUTION_DIR"/"$PROJECT_DIR" \
+            -c "$CONFIGURATION" \
+            --no-build \
+            -p:IncludeSymbols=true \
+            -p:SymbolPackageFormat=snupkg
+
+      - name: Collect package files (flatten for artifact zip root)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$STAGING_DIR"
+
+          shopt -s nullglob globstar
+          files=( "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.nupkg "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.snupkg )
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No package files found under $SOLUTION_DIR/$PROJECT_DIR"
+            exit 1
+          fi
+
+          cp -f "${files[@]}" "$STAGING_DIR"/
+          ls -la "$STAGING_DIR"
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages-${{ env.CONFIGURATION }}
+          path: ${{ env.STAGING_DIR }}/*
+          if-no-files-found: error
+
+      - name: Test (solution, when release and/or publishing is requested)
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' || github.event.inputs.create_github_release == 'true' }}
+        run: |
+          dotnet test "$SOLUTION_DIR" \
+            -c "$CONFIGURATION" \
+            --no-build
+
+      - name: Create helper script for package metadata extraction
+        if: ${{ github.event.inputs.create_github_release == 'true' }}
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/get-package-version.cs" <<'CSHARP'
+          #:package NuGet.Packaging@7.9.0
+
+          try
+          {
+              if (args is not [var packagePath, var gitHubOutputPath, ..]) { throw new ArgumentException("Expected at least two arguments: Path to the package to extract the version information from and GITHUB_OUTPUT."); }
+
+              await using var package = File.OpenRead(packagePath);
+              using var reader = new NuGet.Packaging.PackageArchiveReader(package);
+
+              if ((await reader.GetIdentityAsync(cancellationToken: default)) is not { Id: not null and var id, HasVersion: true, Version: not null and var version }) { throw new InvalidOperationException("Failed to retrieve package identity or version."); }
+
+              await File.AppendAllLinesAsync(gitHubOutputPath, [
+                  $"package_id={id}",
+                  $"package_version={version.ToNormalizedString()}",
+                  $"package_is_prerelease={(version.IsPrerelease ? "true" : "false")}"
+              ]);
+
+              return 0;
+          }
+          catch (Exception e)
+          {
+              await Console.Error.WriteLineAsync($"Error: [{e.GetType().Name}] {e.Message}");
+              return -1;
+          }
+          CSHARP
+
+      - name: Resolve release metadata from package
+        id: release_meta
+        if: ${{ github.event.inputs.create_github_release == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          nupkgs=( "$STAGING_DIR"/*.nupkg )
+          snupkgs=( "$STAGING_DIR"/*.snupkg )
+
+          if [ ${#nupkgs[@]} -ne 1 ]; then
+            echo "Expected exactly one .nupkg in $STAGING_DIR, found ${#nupkgs[@]}"
+            ls -la "$STAGING_DIR"
+            exit 1
+          fi
+
+          if [ ${#snupkgs[@]} -ne 1 ]; then
+            echo "Expected exactly one .snupkg in $STAGING_DIR, found ${#snupkgs[@]}"
+            ls -la "$STAGING_DIR"
+            exit 1
+          fi
+
+          dotnet run "$RUNNER_TEMP/get-package-version.cs" -- "${nupkgs[0]}" "$GITHUB_OUTPUT"
+
+          echo "nupkg_path=${nupkgs[0]}" >> "$GITHUB_OUTPUT"
+          echo "snupkg_path=${snupkgs[0]}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=v${{ steps.release_meta.outputs.package_version }}" >> "$GITHUB_OUTPUT"
+          echo "release_name=v${{ steps.release_meta.outputs.package_version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify release tag does not already exist
+        if: ${{ github.event.inputs.create_github_release == 'true' }}
+        shell: bash
+        env:
+          TAG: ${{ steps.release_meta.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag '$TAG' already exists. Refusing to create release."
+            exit 1
+          fi
+
+      - name: Create GitHub release and upload packages
+        id: gh_release
+        if: ${{ github.event.inputs.create_github_release == 'true' }}
+        continue-on-error: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.release_tag }}
+          name: ${{ steps.release_meta.outputs.release_name }}
+          prerelease: ${{ steps.release_meta.outputs.package_is_prerelease }}
+          fail_on_unmatched_files: true
+          files: |
+            ${{ steps.release_meta.outputs.nupkg_path }}
+            ${{ steps.release_meta.outputs.snupkg_path }}
+
+      - name: Fail if release was requested but failed (and publishing not requested)
+        if: ${{ github.event.inputs.create_github_release == 'true' && github.event.inputs.publish_to_nuget != 'true' && steps.gh_release.outcome == 'failure' }}
+        run: |
+          echo "Release creation failed."
+          exit 1
+
+      - name: NuGet login (OIDC -> temporary API key)
+        id: nuget_login
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push .nupkg to nuget.org
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        run: |
+          dotnet nuget push "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.nupkg \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
+
+      - name: Push .snupkg to nuget.org
+        if: ${{ github.event.inputs.publish_to_nuget == 'true' }}
+        run: |
+          dotnet nuget push "$SOLUTION_DIR"/"$PROJECT_DIR"/**/*.snupkg \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
