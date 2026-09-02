@@ -121,7 +121,7 @@ jobs:
           CSHARP
 
       - name: Resolve release metadata from package
-        id: release_meta
+        id: resolve_meta
         if: ${{ github.event.inputs.create_github_release == 'true' }}
         shell: bash
         run: |
@@ -147,14 +147,23 @@ jobs:
 
           echo "nupkg_path=${nupkgs[0]}" >> "$GITHUB_OUTPUT"
           echo "snupkg_path=${snupkgs[0]}" >> "$GITHUB_OUTPUT"
-          echo "release_tag=v${{ steps.release_meta.outputs.package_version }}" >> "$GITHUB_OUTPUT"
-          echo "release_name=v${{ steps.release_meta.outputs.package_version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Compute release tag and name
+        id: compute_release
+        if: ${{ github.event.inputs.create_github_release == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PACKAGE_VERSION="${{ steps.resolve_meta.outputs.package_version }}"
+          echo "release_tag=v$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "release_name=v$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Verify release tag does not already exist
         if: ${{ github.event.inputs.create_github_release == 'true' }}
         shell: bash
         env:
-          TAG: ${{ steps.release_meta.outputs.release_tag }}
+          TAG: ${{ steps.compute_release.outputs.release_tag }}
         run: |
           set -euo pipefail
 
@@ -170,7 +179,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          NEW_TAG: ${{ steps.release_meta.outputs.release_tag }}
+          NEW_TAG: ${{ steps.compute_release.outputs.release_tag }}
         run: |
           set -euo pipefail
 
@@ -194,14 +203,14 @@ jobs:
         continue-on-error: ${{ github.event.inputs.publish_to_nuget == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.release_meta.outputs.release_tag }}
-          name: ${{ steps.release_meta.outputs.release_name }}
-          prerelease: ${{ steps.release_meta.outputs.package_is_prerelease }}
+          tag_name: ${{ steps.compute_release.outputs.release_tag }}
+          name: ${{ steps.compute_release.outputs.release_name }}
+          prerelease: ${{ steps.resolve_meta.outputs.package_is_prerelease }}
           body: ${{ steps.release_body.outputs.body }}
           fail_on_unmatched_files: true
           files: |
-            ${{ steps.release_meta.outputs.nupkg_path }}
-            ${{ steps.release_meta.outputs.snupkg_path }}
+            ${{ steps.resolve_meta.outputs.nupkg_path }}
+            ${{ steps.resolve_meta.outputs.snupkg_path }}
 
       - name: Fail if release was requested but failed (and publishing not requested)
         if: ${{ github.event.inputs.create_github_release == 'true' && github.event.inputs.publish_to_nuget != 'true' && steps.gh_release.outcome == 'failure' }}
