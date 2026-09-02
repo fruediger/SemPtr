@@ -9,21 +9,13 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PackageId>SemPtr</PackageId>
-    <VersionPrefix>0.0.1</VersionPrefix>
-    <VersionSuffix>alpha.1</VersionSuffix>
     <Description>Semantic Pointers for C#</Description>
-    <Authors>Felix Rüdiger</Authors>
 
     <PackageProjectUrl>https://github.com/fruediger/SemPtr</PackageProjectUrl>
     <PackageTags>semptr;semantic;pointer</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryUrl>https://github.com/fruediger/SemPtr</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <!--<PackageLicenseFile>LICENSE.md</PackageLicenseFile>--> <!-- We already set PackageLicenseExpression in Directory.Build.props, so we don't need to set PackageLicenseFile here, but we will still include the LICENSE.md file in the NuGet package. -->
   </PropertyGroup>
   
   <ItemGroup>
@@ -37,7 +29,8 @@
   <ItemGroup>
     <None Include="../../assets/icon.png" Pack="true" PackagePath="" />
     <None Include="../../README.md" Pack="true" PackagePath="" />
-    <None Include="../SemPtr.FunctionPointerGenerator/bin/$(Configuration)/netstandard2.0/SemPtr.FunctionPointerGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
+    <None Include="../../LICENSE.md" Pack="true" PackagePath="" /> <!-- It's always a good idea to include the license file in the NuGet package, even if PackageLicenseExpression is set instead. -->
+    <None Include="../SemPtr.FunctionPointerGenerator/bin/$(Configuration)/netstandard2.0/SemPtr.FunctionPointerGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" /> <!-- Don't forget to include the function pointer source generator that we want to ship with the NuGet package. -->
   </ItemGroup>
 
   <Import Project="..\SemPtr.Common\SemPtr.Common.projitems" Label="Shared" />
