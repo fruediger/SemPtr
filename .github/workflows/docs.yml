@@ -36,13 +36,13 @@ jobs:
           dotnet nuget add source \
             --name dotnet-docfx \
             --username "${{ github.actor }}" \
-            --password "${{ github.token }}" \
+            --password "${{ secrets.DOCFX_PACKAGES_PAT }}" \
             --store-password-in-clear-text \
             https://nuget.pkg.github.com/dotnet/index.json
 
       - name: Install DocFX preview
         run: |
-          dotnet tool install --global docfx --version 2.78.6-preview.49
+          dotnet tool install --global docfx --version 2.78.6-preview.49 --add-source https://nuget.pkg.github.com/dotnet/index.json
 
       - name: Build documentation
         working-directory: docs
