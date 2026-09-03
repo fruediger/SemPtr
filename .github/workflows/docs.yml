@@ -1,0 +1,68 @@
+name: Build and Deploy Docs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build project
+        run: dotnet build ./src -c Release
+
+      - name: Test project
+        run: dotnet test ./src -c Release --no-build
+
+      - name: Register GitHub Packages source for DocFX preview
+        run: |
+          dotnet nuget add source \
+            --name dotnet-docfx \
+            --username "${{ github.actor }}" \
+            --password "${{ github.token }}" \
+            --store-password-in-clear-text \
+            https://nuget.pkg.github.com/dotnet/index.json
+
+      - name: Install DocFX preview
+        run: |
+          dotnet tool install --global docfx --version 2.78.6-preview.49
+
+      - name: Build documentation
+        working-directory: docs
+        run: |
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          docfx build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
