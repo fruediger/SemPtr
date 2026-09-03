@@ -95,6 +95,11 @@ internal sealed partial class FunctionPointerGenerator : IIncrementalGenerator
 			.SelectMany(static (tuples, _) => tuples)
 			.Collect();
 
+		/* We move the function pointer usages detection into the source output action stage, because it is very expensive to do
+		 * and there we can better control whether we need to do it or not based on the configuration given by attribute applications.
+		 * This might impact when the source generator triggers.
+		 * If it doesn't work well, we might need to go back, uncomment this, and find a better way of filtering.
+		 * 
 		var functionPointerUsages = context.CompilationProvider
 			.SelectMany(static (compilation, cancellationToken) =>
 			{
@@ -140,14 +145,15 @@ internal sealed partial class FunctionPointerGenerator : IIncrementalGenerator
 					));
 			})
 			.Collect();
+		*/
 
 		context.RegisterSourceOutput(
-			source: context.CompilationProvider.Combine(functionPointerGenerationAttributeApplications).Combine(functionPointerAttributeApplications).Combine(functionPointerAttributeTDelegateApplications).Combine(functionPointerUsages),
+			source: context.CompilationProvider.Combine(functionPointerGenerationAttributeApplications).Combine(functionPointerAttributeApplications).Combine(functionPointerAttributeTDelegateApplications)/*.Combine(functionPointerUsages)*/,
 			action: static (spc, types) =>
 			{
-				var ((((compilation, functionPointerGenerationAttributeApplications), functionPointerAttributeApplications), functionPointerAttributeTDelegateApplications), functionPointerUsages) = types;
+				var /*(*/(((compilation, functionPointerGenerationAttributeApplications), functionPointerAttributeApplications), functionPointerAttributeTDelegateApplications)/*, functionPointerUsages)*/ = types;
 
-				Generate(spc, compilation, functionPointerGenerationAttributeApplications, functionPointerAttributeApplications, functionPointerAttributeTDelegateApplications, functionPointerUsages);
+				Generate(spc, compilation, functionPointerGenerationAttributeApplications, functionPointerAttributeApplications, functionPointerAttributeTDelegateApplications/*, functionPointerUsages*/);
 			}
 		);
 	}
