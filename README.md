@@ -449,6 +449,10 @@ varArgFuncPtr.Invoke(1, 2, 3, 4, 5);
 
 ```
 
+## Building the project
+
+If you want to build the project or its documentation on your own, please refer to [BUILDING.md](BUILDING.md).
+
 ## A note on AI usage
 
 In the spirit of transparency, and in line with the [contributing guidelines](CONTRIBUTING.md), here is an overview of how AI was used in this project:
