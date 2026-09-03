@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
@@ -44,11 +46,16 @@ jobs:
         run: |
           dotnet tool install --global docfx --version 2.78.6-preview.49 --add-source https://nuget.pkg.github.com/dotnet/index.json
 
+      - name: Add dotnet tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Generate API metadata
+        working-directory: docs
+        run: docfx metadata
+
       - name: Build documentation
         working-directory: docs
-        run: |
-          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-          docfx build
+        run: docfx build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
