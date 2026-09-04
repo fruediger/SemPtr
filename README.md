@@ -5,6 +5,11 @@
 **SemPtr** (short for **Semantic Pointers**) is a .NET library designed to overcome the limitations of traditional pointers (i.e., raw pointers) in C#.\
 It does this by *semantically naming* the pointer types it provides, categorizing them by their *semantic characteristics*, and using C#'s strong type system to enforce correct pointer usage at compile time and at runtime.
 
+![GitHub Release](https://img.shields.io/github/v/release/fruediger/SemPtr?include_prereleases&logo=github&label=GitHub%20Release&link=https%3A%2F%2Fgithub.com%2Ffruediger%2FSemPtr%2Freleases)\
+![NuGet Package](https://img.shields.io/nuget/vpre/SemPtr?logo=nuget&label=NuGet%20Package&link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FSemPtr%2F)
+
+---
+
 > [!NOTE]
 > While this project aims to provide a more expressive and therefore safer alternative to raw pointers in C#, there are still many scenarios where even semantic pointers can be misused or handled incorrectly. This project *cannot* and *will not* prevent every possible misuse.
 > That said, you should treat any use of pointers, whether semantic or raw, as inherently unsafe and always exercise caution.
