@@ -44,7 +44,7 @@
       "_appFaviconPath": "images/favicon.ico",
       "_appLogoPath": "images/logo.png",
       "_appFooter": "Documentation generated with <strong><a href=\"https://dotnet.github.io/docfx/\">DocFX</a></strong><br>Using <strong><a href=\"https://github.com/Singulink/SingulinkFX\">SingulinkFX</a></strong> as the template",
-      "_copyrightFooter": "© 2026 Felix Rüdiger",
+      "_copyrightFooter": "© 2026 Felix Rüdiger. SemPtr and its documentation are licensed under the MIT license.",
       "_enableSearch": true,
       "_disableSideFilter": false,
       "_enableNewTab": true,

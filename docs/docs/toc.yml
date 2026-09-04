@@ -1,4 +1,6 @@
 - name: Introduction
   href: introduction.md
-- name: Getting Started
-  href: getting-started.md
+- name: Concepts
+  items:
+  - name: Understanding Semantic Characteristics
+    href: Concepts/semantic-characteristics.md
