@@ -5,7 +5,7 @@
     
     <!-- Version information, shared by all projects -->
     <VersionPrefix>0.5.0</VersionPrefix>
-    <VersionSuffix>alpha.1</VersionSuffix>
+    <VersionSuffix>alpha.2</VersionSuffix>
     
     <!-- License, copyright, and authorship information -->
     <PackageLicenseExpression>MIT</PackageLicenseExpression> <!-- Technically, this license information is just for the NuGet package, but it is also a good idea to share it as a MSBuild property with all projects. -->
