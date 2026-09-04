@@ -449,6 +449,10 @@ varArgFuncPtr.Invoke(1, 2, 3, 4, 5);
 
 ```
 
+## Documentation
+
+If you want to a more comprehensive understanding of **SemPtr** and its usage with in-depth articles and an API documentation, please refer to the official [Documentation](https://fruediger.github.io/SemPtr/).
+
 ## Building the project
 
 If you want to build the project or its documentation on your own, please refer to [BUILDING.md](BUILDING.md).
