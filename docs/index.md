@@ -23,9 +23,9 @@ This documentation provides you with [articles](docs/introduction.md) and an [AP
 
 If you're looking for other resources about **SemPtr**, you can refer to the following:
 
-- **GitHub Repository**: ![GitHub](https://img.shields.io/badge/GitHub-fruediger%2FSemPtr-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Ffruediger%2FSemPtr)
-- **GitHub Releases**: ![GitHub Release](https://img.shields.io/github/v/release/fruediger/SemPtr?include_prereleases&logo=github&label=GitHub%20Release&link=https%3A%2F%2Fgithub.com%2Ffruediger%2FSemPtr%2Freleases)
-- **NuGet Package Release**: ![NuGet](https://img.shields.io/nuget/vpre/SemPtr?logo=nuget&label=NuGet&link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FSemPtr%2F)
+- **GitHub Repository**: [![GitHub](https://img.shields.io/badge/GitHub-fruediger%2FSemPtr-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Ffruediger%2FSemPtr)](https://github.com/fruediger/SemPtr)
+- **GitHub Releases**: [![GitHub Release](https://img.shields.io/github/v/release/fruediger/SemPtr?include_prereleases&logo=github&label=GitHub%20Release&link=https%3A%2F%2Fgithub.com%2Ffruediger%2FSemPtr%2Freleases)](https://github.com/fruediger/SemPtr/releases)
+- **NuGet Package Release**: [![NuGet](https://img.shields.io/nuget/vpre/SemPtr?logo=nuget&label=NuGet&link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FSemPtr%2F)](https://www.nuget.org/packages/SemPtr/)
 
 ## A Note on AI Usage
 
