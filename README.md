@@ -108,6 +108,7 @@ Function pointers are supported in a very similar way to data pointers, although
 First and foremost, function pointers are also semantically named and categorized by some characteristics.
 
 Currently, **SemPtr** identifies 3 distinct characteristics of function pointer types:
+
 - **Nullability**: Whether the function pointer can be `null` or not.\
   *This is similar to the **nullability** characteristic of data pointers.*\
   Possible manifestations:
@@ -177,9 +178,10 @@ The library is available as a NuGet package and can be installed via various met
 
 #### Using your IDE
 
-*(Example for Visual Studio 2026)*
-
-Open the NuGet Package Manager and search for `SemPtr`. As long as the library is in prerelease, make sure to check the "Include prerelease" checkbox. Then install the latest version.
+- **Visual Studio 2026**:\
+  Open the NuGet Package Manager and search for `SemPtr`. As long as the library is in prerelease, make sure to check the "Include prerelease" checkbox. Then install the latest version.
+- **Other IDEs**:\
+  Should be a similar process to Visual Studio 2026, but the exact steps may vary depending on the IDE. Find the tool the lets you manage NuGet packages for your project, look up `SemPtr` and make sure to the search includes prerelease versions as long as the library is still in prerelease, and finally install the latest version of the NuGet package.
 
 #### Using the `.csproj` file of your project
 
