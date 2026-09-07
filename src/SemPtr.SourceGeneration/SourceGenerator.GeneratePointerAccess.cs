@@ -32,24 +32,33 @@ partial class SourceGenerator
 				builder.Append($$"""
 
 						/// <summary>
-						/// Gets a reference to the target value the current pointer is pointing to.
+						/// Gets or sets the target value the current pointer is pointing to.
 						/// </summary>
 						/// <value>
-						/// A reference to the target value the current pointer is pointing to.
+						/// The target value the current pointer is pointing to.
 						/// </value>
 						/// <remarks>
 						/// <para>
 						/// Accessing the target value through this property is equivalent to dereferencing the pointer.
 						/// </para>
 						/// </remarks>
-						public readonly ref {{Config.GenerationTypeParameterName}} {{Config.GenerationTargetPropertyName}}
+						public readonly {{Config.GenerationTypeParameterName}} {{Config.GenerationTargetPropertyName}}
 						{
 							[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 							get
 							{
 								unsafe
 								{
-									return ref *{{Config.GenerationRawPointerFieldName}};
+									return *{{Config.GenerationRawPointerFieldName}};
+								}
+							}
+
+							[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+							set
+							{
+								unsafe
+								{
+									*{{Config.GenerationRawPointerFieldName}} = value;
 								}
 							}
 						}
@@ -61,11 +70,11 @@ partial class SourceGenerator
 					builder.Append($$"""
 							
 							/// <summary>
-							/// Gets a reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// Gets or sets the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </summary>
 							/// <param name="index">The index of the target value in the sequence.</param>
 							/// <value>
-							/// A reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// The target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </value>
 							/// <remarks>
 							/// <para>
@@ -73,38 +82,56 @@ partial class SourceGenerator
 							/// </para>
 							/// </remarks>
 							[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
-							public readonly ref {{Config.GenerationTypeParameterName}} this[nint index]
+							public readonly {{Config.GenerationTypeParameterName}} this[nint index]
 							{
 								[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 								get
 								{
 									unsafe
 									{
-										return ref {{Config.GenerationRawPointerFieldName}}[index];
+										return {{Config.GenerationRawPointerFieldName}}[index];
+									}
+								}
+
+								[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+								set
+								{
+									unsafe
+									{
+										{{Config.GenerationRawPointerFieldName}}[index] = value;
 									}
 								}
 							}
 
 							/// <summary>
-							/// Gets a reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// Gets or sets the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </summary>
 							/// <param name="index">The index of the target value in the sequence.</param>
 							/// <value>
-							/// A reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// The target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </value>
 							/// <remarks>
 							/// <para>
 							/// Accessing the target value at the specified <paramref name="index"/> through this property is equivalent to dereferencing the pointer at the specified <paramref name="index"/> offset.
 							/// </para>
 							/// </remarks>
-							public readonly ref {{Config.GenerationTypeParameterName}} this[nuint index]
+							public readonly {{Config.GenerationTypeParameterName}} this[nuint index]
 							{
 								[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 								get
 								{
 									unsafe
 									{
-										return ref {{Config.GenerationRawPointerFieldName}}[index];
+										return {{Config.GenerationRawPointerFieldName}}[index];
+									}
+								}
+
+								[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+								set
+								{
+									unsafe
+									{
+										{{Config.GenerationRawPointerFieldName}}[index] = value;
 									}
 								}
 							}
@@ -256,30 +283,47 @@ partial class SourceGenerator
 						));
 					}
 				}
+
+				builder.Append($$"""
+
+						/// <summary>
+						/// Gets a reference to the target value the current pointer is pointing to.
+						/// </summary>
+						/// <returns>A reference to the target value the current pointer is pointing to.</returns>
+						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+						public readonly ref {{Config.GenerationTypeParameterName}} GetPinnableReference()
+						{
+							unsafe
+							{
+								return ref *{{Config.GenerationRawPointerFieldName}};
+							}
+						}
+
+					""");
 				break;
 
 			case Accessibility.ReadOnly:
 				builder.Append($$"""
 
 						/// <summary>
-						/// Gets a read-only reference to the target value the current pointer is pointing to.
+						/// Gets the target value the current pointer is pointing to.
 						/// </summary>
 						/// <value>
-						/// A read-only reference to the target value the current pointer is pointing to.
+						/// The target value the current pointer is pointing to.
 						/// </value>
 						/// <remarks>
 						/// <para>
 						/// Accessing the target value through this property is equivalent to dereferencing the pointer.
 						/// </para>
 						/// </remarks>
-						public readonly ref readonly {{Config.GenerationTypeParameterName}} {{Config.GenerationTargetPropertyName}}
+						public readonly {{Config.GenerationTypeParameterName}} {{Config.GenerationTargetPropertyName}}
 						{
 							[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 							get
 							{
 								unsafe
 								{
-									return ref *{{Config.GenerationRawPointerFieldName}};
+									return *{{Config.GenerationRawPointerFieldName}};
 								}
 							}
 						}
@@ -291,11 +335,11 @@ partial class SourceGenerator
 					builder.Append($$"""
 							
 							/// <summary>
-							/// Gets a read-only reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// Gets the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </summary>
 							/// <param name="index">The index of the target value in the sequence.</param>
 							/// <value>
-							/// A read-only reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// The target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </value>
 							/// <remarks>
 							/// <para>
@@ -303,38 +347,38 @@ partial class SourceGenerator
 							/// </para>
 							/// </remarks>
 							[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
-							public readonly ref readonly {{Config.GenerationTypeParameterName}} this[nint index]
+							public readonly {{Config.GenerationTypeParameterName}} this[nint index]
 							{
 								[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 								get
 								{
 									unsafe
 									{
-										return ref {{Config.GenerationRawPointerFieldName}}[index];
+										return {{Config.GenerationRawPointerFieldName}}[index];
 									}
 								}
 							}
 
 							/// <summary>
-							/// Gets a read-only reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// Gets the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </summary>
 							/// <param name="index">The index of the target value in the sequence.</param>
 							/// <value>
-							/// A read-only reference to the target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
+							/// The target value at the specified <paramref name="index"/> in the sequence the current pointer is pointing to.
 							/// </value>
 							/// <remarks>
 							/// <para>
 							/// Accessing the target value at the specified <paramref name="index"/> through this property is equivalent to dereferencing the pointer at the specified <paramref name="index"/> offset.
 							/// </para>
 							/// </remarks>
-							public readonly ref readonly {{Config.GenerationTypeParameterName}} this[nuint index]
+							public readonly {{Config.GenerationTypeParameterName}} this[nuint index]
 							{
 								[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 								get
 								{
 									unsafe
 									{
-										return ref {{Config.GenerationRawPointerFieldName}}[index];
+										return {{Config.GenerationRawPointerFieldName}}[index];
 									}
 								}
 							}
@@ -486,6 +530,23 @@ partial class SourceGenerator
 						));
 					}
 				}
+
+				builder.Append($$"""
+
+						/// <summary>
+						/// Gets a read-only reference to the target value the current pointer is pointing to.
+						/// </summary>
+						/// <returns>A read-only reference to the target value the current pointer is pointing to.</returns>
+						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+						public readonly ref readonly {{Config.GenerationTypeParameterName}} GetPinnableReference()
+						{
+							unsafe
+							{
+								return ref *{{Config.GenerationRawPointerFieldName}};
+							}
+						}
+
+					""");
 				break;
 
 			case Accessibility.Uninitialized:
@@ -501,7 +562,7 @@ partial class SourceGenerator
 						/// <param name="value">The value to initialize at the target location.</param>
 						/// <returns>A new <see cref="{{objectRandomAccessCharacteristicsCRef}}"/> pointing to the same target as the current pointer, representing the initialized target.</returns>
 						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-						public readonly {{objectRandomAccessCharacteristicsTypeName}} Initialize{{Config.GenerationTargetPropertyName}}(in {{Config.GenerationTypeParameterName}} value)
+						public readonly {{objectRandomAccessCharacteristicsTypeName}} Initialize{{Config.GenerationTargetPropertyName}}({{Config.GenerationTypeParameterName}} value)
 						{
 							unsafe
 							{
@@ -524,7 +585,7 @@ partial class SourceGenerator
 							/// <returns>A new <see cref="{{objectRandomAccessCharacteristicsCRef}}"/> pointing to the same target with the specified <paramref name="index"/> in the sequence, representing the single initialized target.</returns>
 							[global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
 							[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-							public readonly {{objectRandomAccessCharacteristicsTypeName}} Initialize{{Config.GenerationTargetPropertyName}}(nint index, in {{Config.GenerationTypeParameterName}} value)
+							public readonly {{objectRandomAccessCharacteristicsTypeName}} Initialize{{Config.GenerationTargetPropertyName}}(nint index, {{Config.GenerationTypeParameterName}} value)
 							{
 									unsafe
 									{
@@ -541,7 +602,7 @@ partial class SourceGenerator
 								/// <param name="value">The value to initialize at the specified index.</param>
 								/// <returns>A new <see cref="{{objectRandomAccessCharacteristicsCRef}}"/> pointing to the same target with the specified <paramref name="index"/> in the sequence, representing the single initialized target.</returns>
 								[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-								public readonly {{objectRandomAccessCharacteristicsTypeName}} Initialize{{Config.GenerationTargetPropertyName}}(nuint index, in {{Config.GenerationTypeParameterName}} value)
+								public readonly {{objectRandomAccessCharacteristicsTypeName}} Initialize{{Config.GenerationTargetPropertyName}}(nuint index, {{Config.GenerationTypeParameterName}} value)
 								{
 									unsafe
 									{
@@ -648,6 +709,12 @@ partial class SourceGenerator
 						));
 					}
 				}
+
+				builder.Append($$"""
+
+						// `{{typeName}}` deliberately does not have a `GetPinnableReference()` method, because the target value might be uninitialized and C# does not have a concept of "write-first" references, except for `out` parameters.
+
+					""");
 				break;
 		}
 
