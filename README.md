@@ -7,6 +7,7 @@ It does this by *semantically naming* the pointer types it provides, categorizin
 
 [![GitHub Release](https://img.shields.io/github/v/release/fruediger/SemPtr?include_prereleases&logo=github&label=GitHub%20Release&link=https%3A%2F%2Fgithub.com%2Ffruediger%2FSemPtr%2Freleases)](https://github.com/fruediger/SemPtr/releases)
 [![NuGet Package](https://img.shields.io/nuget/vpre/SemPtr?logo=nuget&label=NuGet%20Package&link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FSemPtr%2F)](https://www.nuget.org/packages/SemPtr/)
+[![Static Badge](https://img.shields.io/badge/Documentation-SemPtr-blue?link=https%3A%2F%2Ffruediger.github.io%2FSemPtr%2F)](https://fruediger.github.io/SemPtr)
 
 ---
 
