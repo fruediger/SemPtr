@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<!-- This source file was partially generated or revised by AI (GitHub Copilot) -->
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,6 +9,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <EnableAbiTests Condition="'$(EnableAbiTests)' == ''">false</EnableAbiTests>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +19,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="xunit.v3" Version="3.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="AbiLayoutTests.cs" Condition="'$(EnableAbiTests)' != 'true'" />
+    <Compile Remove="ManagedAbiTests.cs" Condition="'$(EnableAbiTests)' != 'true'" />
+    <Compile Remove="NativeAbiTests.cs" Condition="'$(EnableAbiTests)' != 'true'" />
+    <Compile Remove="Support/NativeAbiLibrary.cs" Condition="'$(EnableAbiTests)' != 'true'" />
   </ItemGroup>
 
   <ItemGroup>
