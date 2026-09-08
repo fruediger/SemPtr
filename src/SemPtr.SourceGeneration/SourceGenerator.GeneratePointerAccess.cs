@@ -287,9 +287,9 @@ partial class SourceGenerator
 				builder.Append($$"""
 
 						/// <summary>
-						/// Gets a reference to the target value the current pointer is pointing to.
+						/// Gets a reference to the same target the current pointer is pointing to.
 						/// </summary>
-						/// <returns>A reference to the target value the current pointer is pointing to.</returns>
+						/// <returns>A reference to the same target the current pointer is pointing to.</returns>
 						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 						public readonly ref {{Config.GenerationTypeParameterName}} GetPinnableReference()
 						{
@@ -534,9 +534,9 @@ partial class SourceGenerator
 				builder.Append($$"""
 
 						/// <summary>
-						/// Gets a read-only reference to the target value the current pointer is pointing to.
+						/// Gets a read-only reference to the same target the current pointer is pointing to.
 						/// </summary>
-						/// <returns>A read-only reference to the target value the current pointer is pointing to.</returns>
+						/// <returns>A read-only reference to the same target the current pointer is pointing to.</returns>
 						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 						public readonly ref readonly {{Config.GenerationTypeParameterName}} GetPinnableReference()
 						{
