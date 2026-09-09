@@ -37,8 +37,7 @@ jobs:
 
       - name: Run regular tests
         id: tests
-        working-directory: src
-        run: dotnet test SemPtr.Tests/SemPtr.Tests.csproj --no-restore --logger "trx;LogFileName=regular-test-results.trx" --results-directory ../TestResults
+        run: dotnet test tests/SemPtr.Tests/SemPtr.Tests.csproj --no-restore --logger "trx;LogFileName=regular-test-results.trx" --results-directory TestResults
 
       - name: Upload test results
         if: always()
@@ -136,8 +135,7 @@ jobs:
         env:
           SEMPTR_RUN_ABI_TESTS: 'true'
           SEMPTR_ABI_NATIVE_LIBRARY: ${{ runner.os == 'Windows' && format('{0}/semptr-abi/SemPtrAbi.dll', runner.temp) || runner.os == 'macOS' && format('{0}/semptr-abi/libSemPtrAbi.dylib', runner.temp) || format('{0}/semptr-abi/libSemPtrAbi.so', runner.temp) }}
-        working-directory: src
-        run: dotnet test SemPtr.AbiTests/SemPtr.AbiTests.csproj --no-restore -p:Platform=AnyCPU --logger "trx;LogFileName=abi-test-results.trx" --results-directory ../TestResults
+        run: dotnet test tests/SemPtr.AbiTests/SemPtr.AbiTests.csproj --no-restore -p:Platform=AnyCPU --logger "trx;LogFileName=abi-test-results.trx" --results-directory TestResults
 
       - name: Upload ABI test results
         if: always()
