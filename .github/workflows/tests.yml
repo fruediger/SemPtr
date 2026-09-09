@@ -33,7 +33,7 @@ jobs:
 
       - name: Restore
         working-directory: src
-        run: dotnet restore
+        run: dotnet restore '-p:Platform=Any CPU'
 
       - name: Run regular tests
         id: tests
@@ -128,7 +128,7 @@ jobs:
 
       - name: Restore
         working-directory: src
-        run: dotnet restore
+        run: dotnet restore '-p:Platform=Any CPU'
 
       - name: Run ABI tests
         id: tests
