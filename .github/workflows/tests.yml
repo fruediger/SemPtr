@@ -38,8 +38,7 @@ jobs:
       - name: Run regular tests
         id: tests
         working-directory: src
-        # ABI sources are excluded by EnableAbiTests=false, so this run cannot load native ABI tests.
-        run: dotnet test --no-restore -p:EnableAbiTests=false --logger "trx;LogFileName=regular-test-results.trx" --results-directory ../TestResults
+        run: dotnet test SemPtr.Tests/SemPtr.Tests.csproj --no-restore --logger "trx;LogFileName=regular-test-results.trx" --results-directory ../TestResults
 
       - name: Upload test results
         if: always()
@@ -81,13 +80,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-24.04
-          - ubuntu-24.04-arm
-          - windows-2025
-          - windows-11-arm
-          - macos-26-intel
-          - macos-26
+        include:
+          - os: ubuntu-24.04
+            msvc_arch: ''
+          - os: ubuntu-24.04-arm
+            msvc_arch: ''
+          - os: windows-2025
+            msvc_arch: x64
+          - os: windows-11-arm
+            msvc_arch: arm64
+          - os: macos-26-intel
+            msvc_arch: ''
+          - os: macos-26
+            msvc_arch: ''
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
 
@@ -105,6 +110,8 @@ jobs:
       - name: Set up MSVC
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc_arch }}
 
       - name: Build native ABI library
         shell: bash
@@ -127,10 +134,10 @@ jobs:
       - name: Run ABI tests
         id: tests
         env:
+          SEMPTR_RUN_ABI_TESTS: 'true'
           SEMPTR_ABI_NATIVE_LIBRARY: ${{ runner.os == 'Windows' && format('{0}/semptr-abi/SemPtrAbi.dll', runner.temp) || runner.os == 'macOS' && format('{0}/semptr-abi/libSemPtrAbi.dylib', runner.temp) || format('{0}/semptr-abi/libSemPtrAbi.so', runner.temp) }}
         working-directory: src
-        # The MSBuild switch is the reliable isolation boundary for this xUnit v3 adapter.
-        run: dotnet test --no-restore -p:EnableAbiTests=true --filter "trait==Category=ABI" --logger "trx;LogFileName=abi-test-results.trx" --results-directory ../TestResults
+        run: dotnet test SemPtr.AbiTests/SemPtr.AbiTests.csproj --no-restore -p:Platform=AnyCPU --logger "trx;LogFileName=abi-test-results.trx" --results-directory ../TestResults
 
       - name: Upload ABI test results
         if: always()

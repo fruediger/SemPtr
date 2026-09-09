@@ -2,11 +2,10 @@
 using System;
 using SemPtr.Tests.Support;
 
-namespace SemPtr.Tests;
+namespace SemPtr.AbiTests;
 
 public sealed unsafe class NativeAbiTests
 {
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void Identity_RawAndPersistentWrapperSignatures_AreEquivalent()
 	{
@@ -18,7 +17,6 @@ public sealed unsafe class NativeAbiTests
 		Assert.Equal((nint)raw(pointer.Raw), (nint)semantic(pointer).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void Identity_TransientWrapperSignature_PreservesAddress()
 	{
@@ -29,7 +27,6 @@ public sealed unsafe class NativeAbiTests
 		Assert.Equal((nint)pointer.Raw, (nint)semantic(pointer).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void NullIdentity_RawAndNullableWrapperSignatures_AreEquivalent()
 	{
@@ -39,7 +36,6 @@ public sealed unsafe class NativeAbiTests
 		Assert.Equal((nint)raw(null), (nint)semantic(NullablePersistentPointer.Null).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void Offset_RawAndTypedWrapperSignatures_AreEquivalent()
 	{
@@ -52,7 +48,6 @@ public sealed unsafe class NativeAbiTests
 		Assert.Equal((nint)raw(pointer.Raw, offset), (nint)semantic(pointer, offset).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void Replace_RawAndWrapperSignatures_MutateSamePointerStorage()
 	{
@@ -69,7 +64,6 @@ public sealed unsafe class NativeAbiTests
 		Assert.Equal((nint)rawValue, (nint)replacementPointer.Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void WriteInt_RawAndTypedWrapperSignatures_WriteSameValue()
 	{

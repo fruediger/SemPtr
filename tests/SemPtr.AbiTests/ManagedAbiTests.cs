@@ -2,8 +2,9 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using SemPtr.Tests.Support;
 
-namespace SemPtr.Tests;
+namespace SemPtr.AbiTests;
 
 public sealed unsafe class ManagedAbiTests
 {
@@ -19,11 +20,10 @@ public sealed unsafe class ManagedAbiTests
 	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
 	private static void WriteInt(int* destination, int value) => *destination = value;
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void Identity_RawAndPersistentWrapperSignatures_AreEquivalent()
 	{
-		using var buffer = new Support.NativeArray<byte>(1);
+		using var buffer = new NativeArray<byte>(1);
 		var raw = (delegate* unmanaged[Cdecl]<void*, void*>)&Identity;
 		var semantic = (delegate* unmanaged[Cdecl]<PersistentPointer, PersistentPointer>)(void*)raw;
 		var pointer = PersistentPointer.FromRaw(buffer.Pointer);
@@ -31,11 +31,10 @@ public sealed unsafe class ManagedAbiTests
 		Assert.Equal((nint)raw(pointer.Raw), (nint)semantic(pointer).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void Identity_TransientWrapperSignature_PreservesAddress()
 	{
-		using var buffer = new Support.NativeArray<byte>(1);
+		using var buffer = new NativeArray<byte>(1);
 		var raw = (delegate* unmanaged[Cdecl]<void*, void*>)&Identity;
 		var semantic = (delegate* unmanaged[Cdecl]<Pointer, Pointer>)(void*)raw;
 		var pointer = Pointer.FromRaw(buffer.Pointer);
@@ -43,7 +42,6 @@ public sealed unsafe class ManagedAbiTests
 		Assert.Equal((nint)pointer.Raw, (nint)semantic(pointer).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void NullIdentity_RawAndNullableWrapperSignatures_AreEquivalent()
 	{
@@ -54,12 +52,11 @@ public sealed unsafe class ManagedAbiTests
 		Assert.Equal((nint)raw(null), (nint)semantic(pointer).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void MultiplePointers_RawAndWrapperSignatures_SelectSameAddress()
 	{
-		using var firstBuffer = new Support.NativeArray<byte>(1);
-		using var secondBuffer = new Support.NativeArray<byte>(1);
+		using var firstBuffer = new NativeArray<byte>(1);
+		using var secondBuffer = new NativeArray<byte>(1);
 		var raw = (delegate* unmanaged[Cdecl]<void*, void*, void*>)&SelectSecond;
 		var semantic = (delegate* unmanaged[Cdecl]<PersistentPointer, PersistentPointer, PersistentPointer>)(void*)raw;
 		var first = PersistentPointer.FromRaw(firstBuffer.Pointer);
@@ -68,12 +65,11 @@ public sealed unsafe class ManagedAbiTests
 		Assert.Equal((nint)raw(first.Raw, second.Raw), (nint)semantic(first, second).Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void PointerToPointer_RawAndWrapperSignatures_MutateSameStorage()
 	{
-		using var destination = new Support.NativeArray<byte>(1);
-		using var replacement = new Support.NativeArray<byte>(1);
+		using var destination = new NativeArray<byte>(1);
+		using var replacement = new NativeArray<byte>(1);
 		var raw = (delegate* unmanaged[Cdecl]<void**, void*, void>)&Replace;
 		var semantic = (delegate* unmanaged[Cdecl]<void**, PersistentPointer, void>)(void*)raw;
 		var rawValue = (void*)destination.Pointer;
@@ -85,11 +81,10 @@ public sealed unsafe class ManagedAbiTests
 		Assert.Equal((nint)rawValue, (nint)replacementPointer.Raw);
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public void TypedMutation_RawAndWrapperSignatures_WriteSameValue()
 	{
-		using var buffer = new Support.NativeArray<int>(1);
+		using var buffer = new NativeArray<int>(1);
 		var raw = (delegate* unmanaged[Cdecl]<int*, int, void>)&WriteInt;
 		var semantic = (delegate* unmanaged[Cdecl]<PersistentPointer<int>, int, void>)(void*)raw;
 		var pointer = PersistentPointer<int>.FromRaw(buffer.Pointer);

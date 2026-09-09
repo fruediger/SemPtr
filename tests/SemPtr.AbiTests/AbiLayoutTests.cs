@@ -3,11 +3,10 @@ using System;
 using System.Runtime.CompilerServices;
 using SemPtr.Tests.Support;
 
-namespace SemPtr.Tests;
+namespace SemPtr.AbiTests;
 
 public sealed class AbiLayoutTests
 {
-	[Trait("Category", "ABI")]
 	[Fact]
 	public unsafe void UntypedPersistentWrappers_ArePointerSizedAndBlittable()
 	{
@@ -19,7 +18,6 @@ public sealed class AbiLayoutTests
 		AssertPointerLayout<NullablePersistentPointerReadOnly>();
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public unsafe void TypedPersistentWrappers_AreTargetPointerSizedAndBlittable()
 	{
@@ -29,7 +27,6 @@ public sealed class AbiLayoutTests
 		AssertTypedPointerLayout<SampleStruct>();
 	}
 
-	[Trait("Category", "ABI")]
 	[Fact]
 	public unsafe void TransientWrappers_ArePointerSizedAndBlittable()
 	{
