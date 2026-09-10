@@ -4,7 +4,7 @@
   <PropertyGroup>
     
     <!-- Version information, shared by all projects -->
-    <VersionPrefix>0.6.0</VersionPrefix>
+    <VersionPrefix>0.7.0</VersionPrefix>
     <!-- Uncomment and set suffix for prerelease versions: <VersionSuffix></VersionSuffix> -->
     
     <!-- License, copyright, and authorship information -->
