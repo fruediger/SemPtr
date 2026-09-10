@@ -23,6 +23,7 @@ internal sealed partial class SourceGenerator : IIncrementalGenerator
 				GeneratePointerConversions(pic, in characteristics, builder);
 				GeneratePointerFormatting(pic, in characteristics, builder);
 				GeneratePointerDebuggerDisplay(pic, in characteristics, builder);
+				GeneratePointerMarshalling(pic, in characteristics, builder);
 			}
 
 			foreach (var characteristics in FunctionPointerCharacteristics.Enumerate())
@@ -36,6 +37,7 @@ internal sealed partial class SourceGenerator : IIncrementalGenerator
 				GenerateFunctionPointerConversions(pic, in characteristics, builder);
 				GeneratePointerFormatting(pic, in characteristics, builder); // We can reuse the same formatting code as it's written in a generic way that works for both data pointers and function pointers.
 				GenerateFunctionPointerDebuggerDisplay(pic, in characteristics, builder);
+				GenerateFunctionPointerMarshalling(pic, in characteristics, builder);
 			}
 		});
 	}

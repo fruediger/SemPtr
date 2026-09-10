@@ -22,6 +22,8 @@ internal static class Config
 	public const string PointerInterfaceTypeFromUIntPtrMethodName = "FromUIntPtr";
 	public const string PointerInterfaceTypeName = "IPointer";
 	public const string PointerInterfaceTypeRawPointerPropertyName = "Raw";
+	public const string PointerMarshallingNamespaceName = $"{PointerNamespaceName}.Marshalling";
+	public const string PointerMarshallerTypeNameSuffix = "Marshaller";
 	public const string PointerNamespaceName = "SemPtr";
 	public const string PointerTypedInterfaceTypeName = "ITypedPointer";
 	public const string PointerFormatTypeDefaultFormatStringPropertyName = "DefaultFormatString";
