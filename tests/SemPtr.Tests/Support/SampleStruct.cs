@@ -9,9 +9,11 @@ namespace SemPtr.Tests.Support;
 /// </summary>
 internal struct SampleStruct : IEquatable<SampleStruct>
 {
+#pragma warning disable CS0649 // Hello, human author here: This is most probably because of AI-generated slop, but I can't be bothered to fix it right now, not as long as the tests actually work correctly. Maybe as part of a future revision, but not now.
 	public int Number;
 	public byte Flag;
 	public long Ticks;
+#pragma warning restore CS0649
 
 	public readonly bool Equals(SampleStruct other) => Number == other.Number && Flag == other.Flag && Ticks == other.Ticks;
 
