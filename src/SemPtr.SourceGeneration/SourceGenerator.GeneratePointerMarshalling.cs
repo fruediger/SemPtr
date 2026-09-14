@@ -51,6 +51,7 @@ partial class SourceGenerator
 
 		builder.Append($$"""
 
+			[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 			[global::System.Runtime.InteropServices.Marshalling.CustomMarshaller(typeof({{typeNameWithEmptyTypeParameter}}), global::System.Runtime.InteropServices.Marshalling.MarshalMode.Default, typeof({{marshallerTypeNameWithEmptyTypeParameter}}))]
 			public static class {{marshallerTypeName}}
 			""");
@@ -71,6 +72,7 @@ partial class SourceGenerator
 				/// </summary>
 				/// <param name="raw">The raw pointer to convert.</param>
 				/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same target as the given <paramref name="raw"/> pointer.</returns>
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 				public unsafe static {{typeName}} ConvertToManaged({{rawPointerType}} raw) => {{typeName}}.{{Config.PointerInterfaceTypeFromRawMethodName}}(raw);
 			
@@ -79,6 +81,7 @@ partial class SourceGenerator
 				/// </summary>
 				/// <param name="pointer">The <see cref="{{typeNameCRef}}"/> to convert.</param>
 				/// <returns>A raw pointer that points to the same target as the given <paramref name="pointer"/>.</returns>
+				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 				public unsafe static {{rawPointerType}} ConvertToUnmanaged({{typeName}} pointer) => pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
 			}
