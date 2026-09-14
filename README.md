@@ -10,7 +10,7 @@ It does this by *semantically naming* the pointer types it provides, categorizin
 [![Static Badge](https://img.shields.io/badge/Documentation-SemPtr-blue?link=https%3A%2F%2Ffruediger.github.io%2FSemPtr%2F)](https://fruediger.github.io/SemPtr)
 
 > [!TIP]
-> With the latest release, version 0.7.0, **SemPtr**'s pointer types can now finally be used in [`LibraryImport`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.libraryimportattribute) scenarios with much hassle!
+> With the latest release, version 0.7.0, **SemPtr**'s pointer types can now finally be used in [`LibraryImport`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.libraryimportattribute) scenarios with much less hassle!
 >
 > This is made possible because **SemPtr** now provides custom marshallers for each of its provided pointer types, including function pointers.
 
