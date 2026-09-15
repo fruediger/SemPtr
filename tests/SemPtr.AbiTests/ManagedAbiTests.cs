@@ -8,35 +8,28 @@ namespace SemPtr.AbiTests;
 
 public sealed unsafe class ManagedAbiTests
 {
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void* Identity(void* value) => value;
+	// Managed implementations that can be called from both managed and native code
+	private static void* IdentityImpl(void* value) => value;
 
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void* SelectSecond(void* first, void* second) => second;
+	private static void* SelectSecondImpl(void* first, void* second) => second;
 
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void Replace(void** destination, void* replacement) => *destination = replacement;
+	private static void ReplaceImpl(void** destination, void* replacement) => *destination = replacement;
 
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void WriteInt(int* destination, int value) => *destination = value;
+	private static void WriteIntImpl(int* destination, int value) => *destination = value;
 
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void* Select8th(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8) => p8;
+	private static void* Select8thImpl(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8) => p8;
 
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void* Select16th(
+	private static void* Select16thImpl(
 		void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
 		void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16) => p16;
 
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void* Select32nd(
+	private static void* Select32ndImpl(
 		void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
 		void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16,
 		void* p17, void* p18, void* p19, void* p20, void* p21, void* p22, void* p23, void* p24,
 		void* p25, void* p26, void* p27, void* p28, void* p29, void* p30, void* p31, void* p32) => p32;
 
-	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static void WriteMultiPtr(void** dest1, void* val1, void** dest2, void* val2, void** dest3, void* val3, void** dest4, void* val4)
+	private static void WriteMultiPtrImpl(void** dest1, void* val1, void** dest2, void* val2, void** dest3, void* val3, void** dest4, void* val4)
 	{
 		*dest1 = val1;
 		*dest2 = val2;
@@ -44,8 +37,41 @@ public sealed unsafe class ManagedAbiTests
 		*dest4 = val4;
 	}
 
+	private static int Sum8IntsImpl(int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8) => i1 + i2 + i3 + i4 + i5 + i6 + i7 + i8;
+
+	// UnmanagedCallersOnly wrappers for native interop
 	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-	private static int Sum8Ints(int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8) => i1 + i2 + i3 + i4 + i5 + i6 + i7 + i8;
+	private static void* Identity(void* value) => IdentityImpl(value);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void* SelectSecond(void* first, void* second) => SelectSecondImpl(first, second);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void Replace(void** destination, void* replacement) => ReplaceImpl(destination, replacement);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void WriteInt(int* destination, int value) => WriteIntImpl(destination, value);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void* Select8th(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8) => Select8thImpl(p1, p2, p3, p4, p5, p6, p7, p8);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void* Select16th(
+		void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+		void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16) => Select16thImpl(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void* Select32nd(
+		void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+		void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16,
+		void* p17, void* p18, void* p19, void* p20, void* p21, void* p22, void* p23, void* p24,
+		void* p25, void* p26, void* p27, void* p28, void* p29, void* p30, void* p31, void* p32) => Select32ndImpl(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void WriteMultiPtr(void** dest1, void* val1, void** dest2, void* val2, void** dest3, void* val3, void** dest4, void* val4) => WriteMultiPtrImpl(dest1, val1, dest2, val2, dest3, val3, dest4, val4);
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static int Sum8Ints(int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8) => Sum8IntsImpl(i1, i2, i3, i4, i5, i6, i7, i8);
 
 	[Fact]
 	public void Identity_RawAndPersistentWrapperSignatures_AreEquivalent()
@@ -214,7 +240,7 @@ public sealed unsafe class ManagedAbiTests
 	{
 		var raw = (delegate* unmanaged[Cdecl]<int, int, int, int, int, int, int, int, int>)&Sum8Ints;
 		var result1 = raw(1, 2, 3, 4, 5, 6, 7, 8);
-		var result2 = Sum8Ints(1, 2, 3, 4, 5, 6, 7, 8);
+		var result2 = Sum8IntsImpl(1, 2, 3, 4, 5, 6, 7, 8);
 
 		Assert.Equal(result1, result2);
 		Assert.Equal(36, result1);
