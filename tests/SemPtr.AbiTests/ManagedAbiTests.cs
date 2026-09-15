@@ -20,6 +20,33 @@ public sealed unsafe class ManagedAbiTests
 	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
 	private static void WriteInt(int* destination, int value) => *destination = value;
 
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void* Select8th(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8) => p8;
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void* Select16th(
+		void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+		void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16) => p16;
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void* Select32nd(
+		void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+		void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16,
+		void* p17, void* p18, void* p19, void* p20, void* p21, void* p22, void* p23, void* p24,
+		void* p25, void* p26, void* p27, void* p28, void* p29, void* p30, void* p31, void* p32) => p32;
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static void WriteMultiPtr(void** dest1, void* val1, void** dest2, void* val2, void** dest3, void* val3, void** dest4, void* val4)
+	{
+		*dest1 = val1;
+		*dest2 = val2;
+		*dest3 = val3;
+		*dest4 = val4;
+	}
+
+	[UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+	private static int Sum8Ints(int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8) => i1 + i2 + i3 + i4 + i5 + i6 + i7 + i8;
+
 	[Fact]
 	public void Identity_RawAndPersistentWrapperSignatures_AreEquivalent()
 	{
@@ -93,5 +120,103 @@ public sealed unsafe class ManagedAbiTests
 		semantic(pointer, 42);
 
 		Assert.Equal(42, buffer[0]);
+	}
+
+	[Fact]
+	public void Select8thPointer_RawAndPersistentWrapperSignatures_AreEquivalent()
+	{
+		var buffers = stackalloc nint[8];
+		for (int i = 0; i < 8; i++)
+			buffers[i] = (nint)(void*)&buffers[i];
+
+		var raw = (delegate* unmanaged[Cdecl]<void*, void*, void*, void*, void*, void*, void*, void*, void*>)&Select8th;
+		var semantic = (delegate* unmanaged[Cdecl]<PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer>)(void*)raw;
+
+		var p1 = PersistentPointer.FromRaw((void*)buffers[0]);
+		var p2 = PersistentPointer.FromRaw((void*)buffers[1]);
+		var p3 = PersistentPointer.FromRaw((void*)buffers[2]);
+		var p4 = PersistentPointer.FromRaw((void*)buffers[3]);
+		var p5 = PersistentPointer.FromRaw((void*)buffers[4]);
+		var p6 = PersistentPointer.FromRaw((void*)buffers[5]);
+		var p7 = PersistentPointer.FromRaw((void*)buffers[6]);
+		var p8 = PersistentPointer.FromRaw((void*)buffers[7]);
+
+		var rawResult = raw((void*)buffers[0], (void*)buffers[1], (void*)buffers[2], (void*)buffers[3], (void*)buffers[4], (void*)buffers[5], (void*)buffers[6], (void*)buffers[7]);
+		var semanticResult = semantic(p1, p2, p3, p4, p5, p6, p7, p8);
+
+		Assert.Equal((nint)rawResult, (nint)semanticResult.Raw);
+	}
+
+	[Fact]
+	public void Select16thPointer_RawAndPersistentWrapperSignatures_AreEquivalent()
+	{
+		var buffers = stackalloc nint[16];
+		for (int i = 0; i < 16; i++)
+			buffers[i] = (nint)(void*)&buffers[i];
+
+		var raw = (delegate* unmanaged[Cdecl]<
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*, void*>)&Select16th;
+		var semantic = (delegate* unmanaged[Cdecl]<
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer>)(void*)raw;
+
+		var rawResult = raw(
+			(void*)buffers[0], (void*)buffers[1], (void*)buffers[2], (void*)buffers[3], (void*)buffers[4], (void*)buffers[5], (void*)buffers[6], (void*)buffers[7],
+			(void*)buffers[8], (void*)buffers[9], (void*)buffers[10], (void*)buffers[11], (void*)buffers[12], (void*)buffers[13], (void*)buffers[14], (void*)buffers[15]);
+		var semanticResult = semantic(
+			PersistentPointer.FromRaw((void*)buffers[0]), PersistentPointer.FromRaw((void*)buffers[1]), PersistentPointer.FromRaw((void*)buffers[2]), PersistentPointer.FromRaw((void*)buffers[3]),
+			PersistentPointer.FromRaw((void*)buffers[4]), PersistentPointer.FromRaw((void*)buffers[5]), PersistentPointer.FromRaw((void*)buffers[6]), PersistentPointer.FromRaw((void*)buffers[7]),
+			PersistentPointer.FromRaw((void*)buffers[8]), PersistentPointer.FromRaw((void*)buffers[9]), PersistentPointer.FromRaw((void*)buffers[10]), PersistentPointer.FromRaw((void*)buffers[11]),
+			PersistentPointer.FromRaw((void*)buffers[12]), PersistentPointer.FromRaw((void*)buffers[13]), PersistentPointer.FromRaw((void*)buffers[14]), PersistentPointer.FromRaw((void*)buffers[15]));
+
+		Assert.Equal((nint)rawResult, (nint)semanticResult.Raw);
+	}
+
+	[Fact]
+	public void Select32ndPointer_RawAndPersistentWrapperSignatures_AreEquivalent()
+	{
+		var buffers = stackalloc nint[32];
+		for (int i = 0; i < 32; i++)
+			buffers[i] = (nint)(void*)&buffers[i];
+
+		var raw = (delegate* unmanaged[Cdecl]<
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*, void*>)&Select32nd;
+		var semantic = (delegate* unmanaged[Cdecl]<
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer>)(void*)raw;
+
+		var rawResult = raw(
+			(void*)buffers[0], (void*)buffers[1], (void*)buffers[2], (void*)buffers[3], (void*)buffers[4], (void*)buffers[5], (void*)buffers[6], (void*)buffers[7],
+			(void*)buffers[8], (void*)buffers[9], (void*)buffers[10], (void*)buffers[11], (void*)buffers[12], (void*)buffers[13], (void*)buffers[14], (void*)buffers[15],
+			(void*)buffers[16], (void*)buffers[17], (void*)buffers[18], (void*)buffers[19], (void*)buffers[20], (void*)buffers[21], (void*)buffers[22], (void*)buffers[23],
+			(void*)buffers[24], (void*)buffers[25], (void*)buffers[26], (void*)buffers[27], (void*)buffers[28], (void*)buffers[29], (void*)buffers[30], (void*)buffers[31]);
+		var semanticResult = semantic(
+			PersistentPointer.FromRaw((void*)buffers[0]), PersistentPointer.FromRaw((void*)buffers[1]), PersistentPointer.FromRaw((void*)buffers[2]), PersistentPointer.FromRaw((void*)buffers[3]),
+			PersistentPointer.FromRaw((void*)buffers[4]), PersistentPointer.FromRaw((void*)buffers[5]), PersistentPointer.FromRaw((void*)buffers[6]), PersistentPointer.FromRaw((void*)buffers[7]),
+			PersistentPointer.FromRaw((void*)buffers[8]), PersistentPointer.FromRaw((void*)buffers[9]), PersistentPointer.FromRaw((void*)buffers[10]), PersistentPointer.FromRaw((void*)buffers[11]),
+			PersistentPointer.FromRaw((void*)buffers[12]), PersistentPointer.FromRaw((void*)buffers[13]), PersistentPointer.FromRaw((void*)buffers[14]), PersistentPointer.FromRaw((void*)buffers[15]),
+			PersistentPointer.FromRaw((void*)buffers[16]), PersistentPointer.FromRaw((void*)buffers[17]), PersistentPointer.FromRaw((void*)buffers[18]), PersistentPointer.FromRaw((void*)buffers[19]),
+			PersistentPointer.FromRaw((void*)buffers[20]), PersistentPointer.FromRaw((void*)buffers[21]), PersistentPointer.FromRaw((void*)buffers[22]), PersistentPointer.FromRaw((void*)buffers[23]),
+			PersistentPointer.FromRaw((void*)buffers[24]), PersistentPointer.FromRaw((void*)buffers[25]), PersistentPointer.FromRaw((void*)buffers[26]), PersistentPointer.FromRaw((void*)buffers[27]),
+			PersistentPointer.FromRaw((void*)buffers[28]), PersistentPointer.FromRaw((void*)buffers[29]), PersistentPointer.FromRaw((void*)buffers[30]), PersistentPointer.FromRaw((void*)buffers[31]));
+
+		Assert.Equal((nint)rawResult, (nint)semanticResult.Raw);
+	}
+
+	[Fact]
+	public void Sum8Ints_RawAndDirectSignatures_ComputeSameSum()
+	{
+		var raw = (delegate* unmanaged[Cdecl]<int, int, int, int, int, int, int, int, int>)&Sum8Ints;
+		var result1 = raw(1, 2, 3, 4, 5, 6, 7, 8);
+		var result2 = Sum8Ints(1, 2, 3, 4, 5, 6, 7, 8);
+
+		Assert.Equal(result1, result2);
+		Assert.Equal(36, result1);
 	}
 }

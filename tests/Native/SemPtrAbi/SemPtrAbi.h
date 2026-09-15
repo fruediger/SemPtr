@@ -15,4 +15,17 @@ SEMPTR_ABI_EXPORT void* semptr_abi_add_offset(void* value, uintptr_t offset);
 SEMPTR_ABI_EXPORT void semptr_abi_replace(void** destination, void* replacement);
 SEMPTR_ABI_EXPORT void semptr_abi_write_int(int* destination, int value);
 
+// Long parameter list functions for stack-spilling ABI validation
+SEMPTR_ABI_EXPORT void* semptr_abi_select_8th(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8);
+SEMPTR_ABI_EXPORT void* semptr_abi_select_16th(
+	void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+	void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16);
+SEMPTR_ABI_EXPORT void* semptr_abi_select_32nd(
+	void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+	void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16,
+	void* p17, void* p18, void* p19, void* p20, void* p21, void* p22, void* p23, void* p24,
+	void* p25, void* p26, void* p27, void* p28, void* p29, void* p30, void* p31, void* p32);
+SEMPTR_ABI_EXPORT void semptr_abi_write_multi_ptr(void** dest1, void* val1, void** dest2, void* val2, void** dest3, void* val3, void** dest4, void* val4);
+SEMPTR_ABI_EXPORT int semptr_abi_sum_8_ints(int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8);
+
 #endif

@@ -77,4 +77,123 @@ public sealed unsafe class NativeAbiTests
 
 		Assert.Equal(42, buffer[0]);
 	}
+
+	[Fact]
+	public void Select8thPointer_NativeRawAndPersistentWrapperSignatures_AreEquivalent()
+	{
+		var buffers = stackalloc nint[8];
+		for (int i = 0; i < 8; i++)
+			buffers[i] = (nint)(void*)&buffers[i];
+
+		var raw = (delegate* unmanaged[Cdecl]<void*, void*, void*, void*, void*, void*, void*, void*, void*>)NativeAbiLibrary.GetExport("semptr_abi_select_8th");
+		var semantic = (delegate* unmanaged[Cdecl]<PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer>)NativeAbiLibrary.GetExport("semptr_abi_select_8th");
+
+		var rawResult = raw(
+			(void*)buffers[0], (void*)buffers[1], (void*)buffers[2], (void*)buffers[3], (void*)buffers[4], (void*)buffers[5], (void*)buffers[6], (void*)buffers[7]);
+		var semanticResult = semantic(
+			PersistentPointer.FromRaw((void*)buffers[0]), PersistentPointer.FromRaw((void*)buffers[1]), PersistentPointer.FromRaw((void*)buffers[2]), PersistentPointer.FromRaw((void*)buffers[3]),
+			PersistentPointer.FromRaw((void*)buffers[4]), PersistentPointer.FromRaw((void*)buffers[5]), PersistentPointer.FromRaw((void*)buffers[6]), PersistentPointer.FromRaw((void*)buffers[7]));
+
+		Assert.Equal((nint)rawResult, (nint)semanticResult.Raw);
+	}
+
+	[Fact]
+	public void Select16thPointer_NativeRawAndPersistentWrapperSignatures_AreEquivalent()
+	{
+		var buffers = stackalloc nint[16];
+		for (int i = 0; i < 16; i++)
+			buffers[i] = (nint)(void*)&buffers[i];
+
+		var raw = (delegate* unmanaged[Cdecl]<
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*, void*>)NativeAbiLibrary.GetExport("semptr_abi_select_16th");
+		var semantic = (delegate* unmanaged[Cdecl]<
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer>)NativeAbiLibrary.GetExport("semptr_abi_select_16th");
+
+		var rawResult = raw(
+			(void*)buffers[0], (void*)buffers[1], (void*)buffers[2], (void*)buffers[3], (void*)buffers[4], (void*)buffers[5], (void*)buffers[6], (void*)buffers[7],
+			(void*)buffers[8], (void*)buffers[9], (void*)buffers[10], (void*)buffers[11], (void*)buffers[12], (void*)buffers[13], (void*)buffers[14], (void*)buffers[15]);
+		var semanticResult = semantic(
+			PersistentPointer.FromRaw((void*)buffers[0]), PersistentPointer.FromRaw((void*)buffers[1]), PersistentPointer.FromRaw((void*)buffers[2]), PersistentPointer.FromRaw((void*)buffers[3]),
+			PersistentPointer.FromRaw((void*)buffers[4]), PersistentPointer.FromRaw((void*)buffers[5]), PersistentPointer.FromRaw((void*)buffers[6]), PersistentPointer.FromRaw((void*)buffers[7]),
+			PersistentPointer.FromRaw((void*)buffers[8]), PersistentPointer.FromRaw((void*)buffers[9]), PersistentPointer.FromRaw((void*)buffers[10]), PersistentPointer.FromRaw((void*)buffers[11]),
+			PersistentPointer.FromRaw((void*)buffers[12]), PersistentPointer.FromRaw((void*)buffers[13]), PersistentPointer.FromRaw((void*)buffers[14]), PersistentPointer.FromRaw((void*)buffers[15]));
+
+		Assert.Equal((nint)rawResult, (nint)semanticResult.Raw);
+	}
+
+	[Fact]
+	public void Select32ndPointer_NativeRawAndPersistentWrapperSignatures_AreEquivalent()
+	{
+		var buffers = stackalloc nint[32];
+		for (int i = 0; i < 32; i++)
+			buffers[i] = (nint)(void*)&buffers[i];
+
+		var raw = (delegate* unmanaged[Cdecl]<
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*,
+			void*, void*, void*, void*, void*, void*, void*, void*, void*>)NativeAbiLibrary.GetExport("semptr_abi_select_32nd");
+		var semantic = (delegate* unmanaged[Cdecl]<
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer,
+			PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer, PersistentPointer>)NativeAbiLibrary.GetExport("semptr_abi_select_32nd");
+
+		var rawResult = raw(
+			(void*)buffers[0], (void*)buffers[1], (void*)buffers[2], (void*)buffers[3], (void*)buffers[4], (void*)buffers[5], (void*)buffers[6], (void*)buffers[7],
+			(void*)buffers[8], (void*)buffers[9], (void*)buffers[10], (void*)buffers[11], (void*)buffers[12], (void*)buffers[13], (void*)buffers[14], (void*)buffers[15],
+			(void*)buffers[16], (void*)buffers[17], (void*)buffers[18], (void*)buffers[19], (void*)buffers[20], (void*)buffers[21], (void*)buffers[22], (void*)buffers[23],
+			(void*)buffers[24], (void*)buffers[25], (void*)buffers[26], (void*)buffers[27], (void*)buffers[28], (void*)buffers[29], (void*)buffers[30], (void*)buffers[31]);
+		var semanticResult = semantic(
+			PersistentPointer.FromRaw((void*)buffers[0]), PersistentPointer.FromRaw((void*)buffers[1]), PersistentPointer.FromRaw((void*)buffers[2]), PersistentPointer.FromRaw((void*)buffers[3]),
+			PersistentPointer.FromRaw((void*)buffers[4]), PersistentPointer.FromRaw((void*)buffers[5]), PersistentPointer.FromRaw((void*)buffers[6]), PersistentPointer.FromRaw((void*)buffers[7]),
+			PersistentPointer.FromRaw((void*)buffers[8]), PersistentPointer.FromRaw((void*)buffers[9]), PersistentPointer.FromRaw((void*)buffers[10]), PersistentPointer.FromRaw((void*)buffers[11]),
+			PersistentPointer.FromRaw((void*)buffers[12]), PersistentPointer.FromRaw((void*)buffers[13]), PersistentPointer.FromRaw((void*)buffers[14]), PersistentPointer.FromRaw((void*)buffers[15]),
+			PersistentPointer.FromRaw((void*)buffers[16]), PersistentPointer.FromRaw((void*)buffers[17]), PersistentPointer.FromRaw((void*)buffers[18]), PersistentPointer.FromRaw((void*)buffers[19]),
+			PersistentPointer.FromRaw((void*)buffers[20]), PersistentPointer.FromRaw((void*)buffers[21]), PersistentPointer.FromRaw((void*)buffers[22]), PersistentPointer.FromRaw((void*)buffers[23]),
+			PersistentPointer.FromRaw((void*)buffers[24]), PersistentPointer.FromRaw((void*)buffers[25]), PersistentPointer.FromRaw((void*)buffers[26]), PersistentPointer.FromRaw((void*)buffers[27]),
+			PersistentPointer.FromRaw((void*)buffers[28]), PersistentPointer.FromRaw((void*)buffers[29]), PersistentPointer.FromRaw((void*)buffers[30]), PersistentPointer.FromRaw((void*)buffers[31]));
+
+		Assert.Equal((nint)rawResult, (nint)semanticResult.Raw);
+	}
+
+	[Fact]
+	public void WriteMultiPtr_NativeRawAndWrapperSignatures_MutateSameStorage()
+	{
+		using var dest1 = new NativeArray<byte>(1);
+		using var dest2 = new NativeArray<byte>(1);
+		using var dest3 = new NativeArray<byte>(1);
+		using var dest4 = new NativeArray<byte>(1);
+		using var val1 = new NativeArray<byte>(1);
+		using var val2 = new NativeArray<byte>(1);
+		using var val3 = new NativeArray<byte>(1);
+		using var val4 = new NativeArray<byte>(1);
+
+		var raw = (delegate* unmanaged[Cdecl]<void**, void*, void**, void*, void**, void*, void**, void*, void>)NativeAbiLibrary.GetExport("semptr_abi_write_multi_ptr");
+		var semantic = (delegate* unmanaged[Cdecl]<void**, PersistentPointer, void**, PersistentPointer, void**, PersistentPointer, void**, PersistentPointer, void>)NativeAbiLibrary.GetExport("semptr_abi_write_multi_ptr");
+
+		var rawValues = stackalloc void*[4] { (void*)dest1.Pointer, (void*)dest2.Pointer, (void*)dest3.Pointer, (void*)dest4.Pointer };
+		var semanticValues = stackalloc void*[4] { (void*)dest1.Pointer, (void*)dest2.Pointer, (void*)dest3.Pointer, (void*)dest4.Pointer };
+
+		raw(&rawValues[0], (void*)val1.Pointer, &rawValues[1], (void*)val2.Pointer, &rawValues[2], (void*)val3.Pointer, &rawValues[3], (void*)val4.Pointer);
+		semantic(&semanticValues[0], PersistentPointer.FromRaw((void*)val1.Pointer), &semanticValues[1], PersistentPointer.FromRaw((void*)val2.Pointer), &semanticValues[2], PersistentPointer.FromRaw((void*)val3.Pointer), &semanticValues[3], PersistentPointer.FromRaw((void*)val4.Pointer));
+
+		Assert.Equal((nint)rawValues[0], (nint)semanticValues[0]);
+		Assert.Equal((nint)rawValues[1], (nint)semanticValues[1]);
+		Assert.Equal((nint)rawValues[2], (nint)semanticValues[2]);
+		Assert.Equal((nint)rawValues[3], (nint)semanticValues[3]);
+	}
+
+	[Fact]
+	public void Sum8Ints_NativeRawAndDirectSignatures_ComputeSameSum()
+	{
+		var raw = (delegate* unmanaged[Cdecl]<int, int, int, int, int, int, int, int, int>)NativeAbiLibrary.GetExport("semptr_abi_sum_8_ints");
+		var result1 = raw(10, 20, 30, 40, 50, 60, 70, 80);
+		var result2 = raw(1, 2, 3, 4, 5, 6, 7, 8);
+
+		Assert.Equal(360, result1);
+		Assert.Equal(36, result2);
+	}
 }

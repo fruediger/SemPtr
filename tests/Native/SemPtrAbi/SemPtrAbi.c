@@ -20,3 +20,37 @@ void semptr_abi_write_int(int* destination, int value)
 {
 	*destination = value;
 }
+
+void* semptr_abi_select_8th(void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8)
+{
+	return p8;
+}
+
+void* semptr_abi_select_16th(
+	void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+	void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16)
+{
+	return p16;
+}
+
+void* semptr_abi_select_32nd(
+	void* p1, void* p2, void* p3, void* p4, void* p5, void* p6, void* p7, void* p8,
+	void* p9, void* p10, void* p11, void* p12, void* p13, void* p14, void* p15, void* p16,
+	void* p17, void* p18, void* p19, void* p20, void* p21, void* p22, void* p23, void* p24,
+	void* p25, void* p26, void* p27, void* p28, void* p29, void* p30, void* p31, void* p32)
+{
+	return p32;
+}
+
+void semptr_abi_write_multi_ptr(void** dest1, void* val1, void** dest2, void* val2, void** dest3, void* val3, void** dest4, void* val4)
+{
+	*dest1 = val1;
+	*dest2 = val2;
+	*dest3 = val3;
+	*dest4 = val4;
+}
+
+int semptr_abi_sum_8_ints(int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8)
+{
+	return i1 + i2 + i3 + i4 + i5 + i6 + i7 + i8;
+}
