@@ -13,6 +13,7 @@ internal static class Config
 	public const string GenerationRawPointerFieldName = "mRaw";
 	public const string GenerationTargetPropertyName = "Target";
 	public const string GenerationTypeParameterName = "T";
+	public const string GenerationUncheckedConstructorDispatchParameterName = "uncheckedConstructorDispatch";
 	public const string InternalNamespaceName = "SemPtr.Internal";
 	public const string PointerExtensionsTypeName = "PointerExtensions";
 	public const string PointerInterfaceTypeAsIntPtrPropertyName = "AsIntPtr";

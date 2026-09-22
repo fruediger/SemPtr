@@ -17,9 +17,16 @@ partial class SourceGenerator
 
 		// With the recent addition of function pointers, we also need to add overloads for 'NullableFunctionPointer' and only for that type, as all function pointer types can be implicitly converted to 'NullableFunctionPointer'.
 
+		// Since pointer types recently became convertible to and from raw pointers, we also need to add equality overloads for raw pointers, to enable, for example, `null`-comparisons for non-nullable pointers.
+		// Otherwise, the existing equality overloads would force an implicit conversion from the raw pointer and could throw an `ArgumentNullException` if the given raw pointer happens to be `null`.
+		// However, we explicitly want to enable users to compare any pointers against the `null` literal without any issues.
+		// To gain parity across all pointer types, we'll also add those raw pointer equality overloads for nullable pointer types as well.
+		// For that to work, the raw pointer equality overloads must have the highest overload resolution priority and the semantic pointer to raw pointer conversion must be `explicit` (which it is, see `SourceGenerator.GeneratePointerConversions.cs`).
+
 		builder.Clear();
 
 		var typeName = characteristics.ToTypeName();
+		var typeNameCRef = characteristics.Typeability switch { Typeability.Typed => $"{characteristics.ToTypeNameWithoutTypeParameter()}{{{Config.GenerationTypeParameterName}}}", _ => typeName };
 		var characteristicsIsNotNpro = characteristics is not { Nullability: Nullability.Nullable, Persistency: Persistency.Transient, Sequencability: Sequencability.Object, Accessibility: Accessibility.ReadOnly, Typeability: Typeability.Untyped }; // NullablePointerReadOnly
 		var characteristicsIsNotNpu = characteristics is not { Nullability: Nullability.Nullable, Persistency: Persistency.Transient, Sequencability: Sequencability.Object, Accessibility: Accessibility.Uninitialized, Typeability: Typeability.Untyped }; // NullablePointerUninitialized
 		var nproTypeName = characteristicsIsNotNpro ? new PointerCharacteristics(Nullability.Nullable, Persistency.Transient, Sequencability.Object, Accessibility.ReadOnly, Typeability.Untyped).ToTypeName() : "";
@@ -112,7 +119,12 @@ partial class SourceGenerator
 				""");
 		}
 
-		var sameTypeOverloadPriority = (characteristicsIsNotNpu, characteristicsIsNotNpro) switch { (true, true) => "4", (false, true) or (true, false) => "3", _ => "2" };
+		var (sameTypeOverloadPriority, rawPointerOverloadPriority) = (characteristicsIsNotNpu, characteristicsIsNotNpro) switch
+		{
+			(true, true) => ("4", "5"),
+			(false, true) or (true, false) => ("3", "4"),
+			_ => ("2", "3")
+		};
 
 		builder.Append($$"""
 				
@@ -165,6 +177,9 @@ partial class SourceGenerator
 				""");
 		}
 
+		// There's just a single raw pointer overload that accepts a `void*` argument, for the same reason as the `Equals(NullablePointerReadOnly)` and `Equals(NullablePointerUninitialized)` overloads,
+		// every raw pointer type in C# can be implicitly converted to a `void*` and we don't want to restrict the kinds of raw pointer types the semantic pointer type can be compared against.
+
 		builder.Append($$"""
 
 				/// <inheritdoc/>
@@ -177,6 +192,15 @@ partial class SourceGenerator
 						return {{Config.GenerationRawPointerFieldName}} == other.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
 					}
 				}
+			
+				/// <summary>
+				/// Indicates whether the current pointer is equal to the specified raw pointer.
+				/// </summary>
+				/// <param name="raw">The raw pointer to compare with the current pointer.</param>
+				/// <returns><c><see langword="true"/></c>, if the current pointer is equal to the specified raw pointer; otherwise, <c><see langword="false"/></c>.</returns>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{rawPointerOverloadPriority}})]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe readonly bool Equals(void* raw) => {{Config.GenerationRawPointerFieldName}} == raw;
 				
 				/// <inheritdoc/>
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
@@ -293,6 +317,46 @@ partial class SourceGenerator
 						return left.{{Config.GenerationRawPointerFieldName}} != right.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
 					}
 				}
+
+				/// <summary>
+				/// Compares a {{typeNameCRef}} with a raw pointer to determine equality.
+				/// </summary>
+				/// <param name="left">The {{typeNameCRef}} to compare with the raw pointer.</param>
+				/// <param name="right">The raw pointer to compare with the {{typeNameCRef}}.</param>
+				/// <returns><c><see langword="true"/></c>, if the {{typeNameCRef}} is equal to the raw pointer; otherwise, <c><see langword="false"/></c>.</returns>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{rawPointerOverloadPriority}})]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static bool operator ==({{typeName}} left, void* right) => left.{{Config.GenerationRawPointerFieldName}} == right;
+
+				/// <summary>
+				/// Compares a {{typeNameCRef}} with a raw pointer to determine inequality.
+				/// </summary>
+				/// <param name="left">The {{typeNameCRef}} to compare with the raw pointer.</param>
+				/// <param name="right">The raw pointer to compare with the {{typeNameCRef}}.</param>
+				/// <returns><c><see langword="true"/></c>, if the {{typeNameCRef}} is not equal to the raw pointer; otherwise, <c><see langword="false"/></c>.</returns>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{rawPointerOverloadPriority}})]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static bool operator !=({{typeName}} left, void* right) => left.{{Config.GenerationRawPointerFieldName}} != right;
+
+				/// <summary>
+				/// Compares a raw pointer with a {{typeNameCRef}} to determine equality.
+				/// </summary>
+				/// <param name="left">The raw pointer to compare with the {{typeNameCRef}}.</param>
+				/// <param name="right">The {{typeNameCRef}} to compare with the raw pointer.</param>
+				/// <returns><c><see langword="true"/></c>, if the raw pointer is equal to the {{typeNameCRef}}; otherwise, <c><see langword="false"/></c>.</returns>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{rawPointerOverloadPriority}})]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static bool operator ==(void* left, {{typeName}} right) => left == right.{{Config.GenerationRawPointerFieldName}};
+
+				/// <summary>
+				/// Compares a raw pointer with a {{typeNameCRef}} to determine inequality.
+				/// </summary>
+				/// <param name="left">The raw pointer to compare with the {{typeNameCRef}}.</param>
+				/// <param name="right">The {{typeNameCRef}} to compare with the raw pointer.</param>
+				/// <returns><c><see langword="true"/></c>, if the raw pointer is not equal to the {{typeNameCRef}}; otherwise, <c><see langword="false"/></c>.</returns>
+				[global::System.Runtime.CompilerServices.OverloadResolutionPriority({{rawPointerOverloadPriority}})]
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static bool operator !=(void* left, {{typeName}} right) => left != right.{{Config.GenerationRawPointerFieldName}};
 			}
 
 			#nullable restore

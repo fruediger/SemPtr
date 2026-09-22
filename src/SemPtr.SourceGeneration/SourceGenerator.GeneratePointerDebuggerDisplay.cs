@@ -66,7 +66,7 @@ partial class SourceGenerator
 
 								[global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]
 								[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-								public readonly {{{{typeName}}}} Value => new(mRaw);
+								public readonly {{{{typeName}}}} Value => new(mRaw, {{{{Config.GenerationUncheckedConstructorDispatchParameterName}}}}: default);
 
 								[global::System.Diagnostics.DebuggerBrowsable(global::System.Diagnostics.DebuggerBrowsableState.Never)]
 								[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]

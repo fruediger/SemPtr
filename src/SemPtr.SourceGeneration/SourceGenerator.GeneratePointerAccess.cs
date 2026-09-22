@@ -567,7 +567,7 @@ partial class SourceGenerator
 							unsafe
 							{
 								*{{Config.GenerationRawPointerFieldName}} = value;
-								return new({{Config.GenerationRawPointerFieldName}});
+								return new({{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 
@@ -591,7 +591,7 @@ partial class SourceGenerator
 									{
 										var raw = {{Config.GenerationRawPointerFieldName}} + index;
 										*raw = value;
-										return new(raw);
+										return new(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 									}
 								}
 
@@ -608,7 +608,7 @@ partial class SourceGenerator
 									{
 										var raw = {{Config.GenerationRawPointerFieldName}} + index;
 										*raw = value;
-										return new(raw);
+										return new(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 
 									}
 								}
@@ -647,7 +647,7 @@ partial class SourceGenerator
 											global::System.Runtime.InteropServices.NativeMemory.Copy(source, {{Config.GenerationRawPointerFieldName}}, checked((nuint)values.Length * (nuint)global::System.Runtime.CompilerServices.Unsafe.SizeOf<{{Config.GenerationTypeParameterName}}>()));
 										}
 
-										return new({{Config.GenerationRawPointerFieldName}});
+										return new({{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 									}
 								}
 
@@ -697,7 +697,7 @@ partial class SourceGenerator
 													global::System.Runtime.InteropServices.NativeMemory.Copy(source, pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}, checked((nuint)values.Length * (nuint)global::System.Runtime.CompilerServices.Unsafe.SizeOf<{{Config.GenerationTypeParameterName}}>()));
 												}
 								
-												return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}});
+												return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 											}
 										}
 									}

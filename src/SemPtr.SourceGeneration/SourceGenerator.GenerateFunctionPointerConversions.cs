@@ -170,7 +170,7 @@ partial class SourceGenerator
 						{
 							unsafe
 							{
-								return new(pointer.{{Config.GenerationRawPointerFieldName}});
+								return new(pointer.{{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 

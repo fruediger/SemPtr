@@ -230,7 +230,9 @@ internal partial class SourceGenerator
 				private unsafe readonly {{rawPointerType}} {{Config.GenerationRawPointerFieldName}};
 
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				internal unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw) => {{Config.GenerationRawPointerFieldName}} = raw;
+			#pragma warning disable IDE0060 // `{{Config.GenerationUncheckedConstructorDispatchParameterName}}` is used to distinguish this internal constructor's signature from the signature of the public constructor that takes just a raw pointer
+				internal unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw, object? {{Config.GenerationUncheckedConstructorDispatchParameterName}}) => {{Config.GenerationRawPointerFieldName}} = raw;
+			#pragma warning restore IDE0060
 
 			""");
 
@@ -238,11 +240,59 @@ internal partial class SourceGenerator
 		{
 			builder.Append($$"""
 
+				/// <summary>
+				/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
+				/// </summary>
+				/// <param name="raw">The raw pointer specifying the {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
+				/// <remarks>
+				/// <para>
+				/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
+				/// </para>
+				/// <para>
+				/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as <paramref name="raw"/>.
+				/// </para>
+				/// </remarks>
+				/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw) : this(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default)
+				{
+					if (raw is null)
+					{
+						[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]
+						static void failRawArgumentNull() => throw new global::System.ArgumentNullException(nameof(raw));
+
+						failRawArgumentNull();
+					}
+				}
+
 				/// <summary>Do not use. Do not create instances of non-nullable pointers using parameterless constructors or default values.</summary>
 				[global::System.Obsolete("Do not use. Do not create instances of non-nullable pointers using parameterless constructors or default values.", error: true)]
-				public {{typeNameWithoutTypeParameter}}() { }
+				public {{typeNameWithoutTypeParameter}}()
+				{ }
 
 			""");
+		}
+		else
+		{
+			builder.Append($$"""
+
+					/// <summary>
+					/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
+					/// </summary>
+					/// <param name="raw">The raw pointer specifying the {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
+					/// <remarks>
+					/// <para>
+					/// The <paramref name="raw"/> pointer may be <c><see langword="null"/></c>. If it is, the resulting <see cref="{{typeNameCRef}}"/> will represent a null pointer.
+					/// </para>
+					/// <para>
+					/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as <paramref name="raw"/>.
+					/// </para>
+					/// </remarks>
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					public unsafe {{typeNameWithoutTypeParameter}}({{rawPointerType}} raw) : this(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default)
+					{ }
+
+				""");
 		}
 
 		builder.Append($$"""
@@ -339,7 +389,7 @@ internal partial class SourceGenerator
 							failRawArgumentNull();
 						}
 
-						return new(raw);
+						return new(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 
 				""");
@@ -362,7 +412,7 @@ internal partial class SourceGenerator
 					/// </para>
 					/// </remarks>
 					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					public unsafe static {{typeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}({{rawPointerType}} raw) => new(raw);
+					public unsafe static {{typeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}({{rawPointerType}} raw) => new(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 
 				""");
 		}
@@ -424,7 +474,7 @@ internal partial class SourceGenerator
 								failValueArgumentNull();
 							}
 				
-							return new(unchecked(({{rawPointerType}})value));
+							return new(unchecked(({{rawPointerType}})value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 				
@@ -452,7 +502,7 @@ internal partial class SourceGenerator
 								failValueArgumentNull();
 							}
 				
-							return new(unchecked(({{rawPointerType}})value));
+							return new(unchecked(({{rawPointerType}})value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 
@@ -473,7 +523,7 @@ internal partial class SourceGenerator
 					{
 						unsafe
 						{				
-							return new(unchecked(({{rawPointerType}})value));
+							return new(unchecked(({{rawPointerType}})value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 				
@@ -487,7 +537,7 @@ internal partial class SourceGenerator
 					{
 						unsafe
 						{				
-							return new(unchecked(({{rawPointerType}})value));
+							return new(unchecked(({{rawPointerType}})value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 
