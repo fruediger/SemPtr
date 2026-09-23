@@ -30,7 +30,9 @@
     <None Include="../../assets/icon.png" Pack="true" PackagePath="" />
     <None Include="../../README.md" Pack="true" PackagePath="" />
     <None Include="../../LICENSE.md" Pack="true" PackagePath="" /> <!-- It's always a good idea to include the license file in the NuGet package, even if PackageLicenseExpression is set instead. -->
-    <None Include="../SemPtr.FunctionPointerGenerator/bin/$(Configuration)/netstandard2.0/SemPtr.FunctionPointerGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" /> <!-- Don't forget to include the function pointer source generator that we want to ship with the NuGet package. -->
+    <None Include="../SemPtr.Analyzers/bin/$(Configuration)/netstandard2.0/SemPtr.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
+    <None Include="../SemPtr.CodeFixProviders/bin/$(Configuration)/netstandard2.0/SemPtr.CodeFixProviders.dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
+    <None Include="../SemPtr.FunctionPointerGenerator/bin/$(Configuration)/netstandard2.0/SemPtr.FunctionPointerGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
   </ItemGroup>
 
   <Import Project="..\SemPtr.Common\SemPtr.Common.projitems" Label="Shared" />
