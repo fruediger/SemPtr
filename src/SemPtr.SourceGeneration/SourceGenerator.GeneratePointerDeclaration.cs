@@ -1,6 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using SemPtr.Analyzers;
 using System.Text;
+using Accessibility = SemPtr.Analyzers.Accessibility;
 
 namespace SemPtr.SourceGeneration;
 

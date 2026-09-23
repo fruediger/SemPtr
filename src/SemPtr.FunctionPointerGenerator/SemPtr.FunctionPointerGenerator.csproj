@@ -17,8 +17,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
   </ItemGroup>
 
-  <Import Project="..\SemPtr.SourceGeneration.Common\SemPtr.SourceGeneration.Common.projitems" Label="Shared" />
-
+  <Import Project="..\SemPtr.Analyzers.Common\SemPtr.Analyzers.Common.projitems" Label="Shared" />
   <Import Project="..\SemPtr.Common\SemPtr.Common.projitems" Label="Shared" />
 
 </Project>

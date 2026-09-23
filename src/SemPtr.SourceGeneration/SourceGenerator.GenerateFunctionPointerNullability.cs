@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using SemPtr.Analyzers;
 using System.Text;
 
 namespace SemPtr.SourceGeneration;

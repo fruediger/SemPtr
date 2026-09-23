@@ -1,6 +1,6 @@
 ﻿// DISCLAIMER: This source file was generated with the help of AI (GitHub Copilot using Claude Sonnet 5)
 using Microsoft.CodeAnalysis;
-using SemPtr.SourceGeneration;
+using SemPtr.Analyzers;
 using System.Text;
 
 namespace SemPtr.Tests.SourceGeneration;

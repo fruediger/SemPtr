@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using SemPtr.SourceGeneration;
+using SemPtr.Analyzers;
 using System.Collections.Immutable;
 using System.Text;
 

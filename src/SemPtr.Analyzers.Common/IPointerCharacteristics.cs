@@ -1,5 +1,7 @@
 using System;
 
+namespace SemPtr.Analyzers;
+
 internal interface IPointerCharacteristics<TSelf> : IEquatable<TSelf>
 	where TSelf : struct, IPointerCharacteristics<TSelf>
 {

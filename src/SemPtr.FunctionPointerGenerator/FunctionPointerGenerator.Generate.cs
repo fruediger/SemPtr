@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using SemPtr.SourceGeneration;
+using SemPtr.Analyzers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
