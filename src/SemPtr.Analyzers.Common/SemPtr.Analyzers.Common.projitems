@@ -20,7 +20,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Persistency.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PointerCharacteristics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sequencability.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Index.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Range.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.IsExternalInit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.RequiredMemberAttribute.cs" />
