@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Config.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Conversion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConversionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerCharacteristics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPointerCharacteristics.cs" />

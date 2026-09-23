@@ -14,7 +14,7 @@ namespace SemPtr;
 partial class FunctionPointerGenerator
 {
 	private static readonly DiagnosticDescriptor mLaterCSharpVersionRequiredDescriptor = new(
-		id: $"{Config.DiagnosticDescriptorIdPrefix}4101",
+		id: Diagnostics.LaterCSharpVersionRequiredDiagnosticId,
 		title: "Later C# version is required",
 		messageFormat: 
 			$"A later C# version is required for {nameof(SemPtr)}.{nameof(FunctionPointerGenerator)} to generate code." +
@@ -25,7 +25,7 @@ partial class FunctionPointerGenerator
 	);
 
 	private static readonly DiagnosticDescriptor mMultipleFunctionPointerGenerationAttributesDescriptor = new(
-		id: $"{Config.DiagnosticDescriptorIdPrefix}4201",
+		id: Diagnostics.MultipleFunctionPointerGenerationAttributesDiagnosticId,
 		title: "Function pointer generation specified more than once",
 		messageFormat:
 			$"The {nameof(FunctionPointerGenerationAttribute)} is specified more than once for the same assembly." +
@@ -36,7 +36,7 @@ partial class FunctionPointerGenerator
 	);
 
 	private static readonly DiagnosticDescriptor mConflictingFunctionPointerCallingConventionsDescriptor = new(
-		id: $"{Config.DiagnosticDescriptorIdPrefix}4202",
+		id: Diagnostics.ConflictingFunctionPointerCallingConventionsDiagnosticId,
 		title: "Conflicting function pointer calling conventions specified",
 		messageFormat:
 			"Conflicting function pointer calling conventions are specified for the delegate type '{0}': {1}." +
@@ -47,7 +47,7 @@ partial class FunctionPointerGenerator
 	);
 
 	private static readonly DiagnosticDescriptor mCouldNotCreateRawFunctionPointerTypeDescriptor = new(
-		id: $"{Config.DiagnosticDescriptorIdPrefix}4301",
+		id: Diagnostics.CouldNotCreateRawFunctionPointerTypeDiagnosticId,
 		title: "Could not create raw function pointer type",
 #pragma warning disable RS1032 // Not ending in a period here, because the argument for {2} is the exception's message, and most exception messages already end in a period (and if they don't, that wouldn't be too much of an issue)
 		messageFormat:

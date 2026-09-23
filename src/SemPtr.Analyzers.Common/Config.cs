@@ -2,8 +2,6 @@
 
 internal static class Config
 {
-	public const string DiagnosticDescriptorIdPrefix = "SEMPTR";
-
 	public const string FunctionPointerInterfaceTypeName = "IFunctionPointer";
 	public const string FunctionPointerTypedInterfaceTypeName = "ITypedFunctionPointer";
 	public const string FunctionPointerInterfaceFromDelegateMethodName = "FromDelegate";
