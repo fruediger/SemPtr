@@ -1,9 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SemPtr.Analyzers;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -12,7 +8,6 @@ namespace SemPtr;
 [Generator(LanguageNames.CSharp)]
 internal sealed partial class FunctionPointerGenerator : IIncrementalGenerator
 {
-	private const string DiagnosticDescriptorIdPrefix = "SEMPTRFP";
 	private const string DiagnosticDescriptorCategory = $"{nameof(SemPtr)}.{nameof(FunctionPointerGenerator)}";
 
 	private static readonly (string Name, string Version) mTool = typeof(FunctionPointerGenerator).Assembly.GetName() switch { var assemblyName => (assemblyName?.Name ?? $"{nameof(SemPtr)}.{nameof(FunctionPointerGenerator)}", assemblyName?.Version?.ToString(3) ?? "0.0.0" ) };
