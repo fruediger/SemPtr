@@ -43,23 +43,49 @@ internal sealed class NonNullablePointerImplicitConversionCodeFixProvider : Code
 				}
 
 				// If we at some point decide to no longer apply the diagnostic to "explicit" casts as well (see `NonNullablePointerImplicitConversionAnalyzer.cs`),
-				// we should remove the block below, and instead just return early when the operand is a `CastExpressionSyntax` (i.e., the implicit conversion operator is used explicitly).
+				// instead, we should just return early when the operand is a `CastExpressionSyntax` (i.e., the implicit conversion operator is used explicitly).
 
+				ITypeSymbol? targetType;
 				if (operandExpr is CastExpressionSyntax castExpr)
 				{
 					// If the operand so far is a cast expression, this means that the implicit conversion is applied as an explicit cast,
 					// and since it's not implicit, we need to take the inner expression of the cast as the operand.
 
 					operandExpr = castExpr.Expression;
+
+					// For cast expression, the target type is simply the type of the cast expression itself;
+
+					targetType = model.GetTypeInfo(castExpr, cancellationToken).Type;
+				}
+				else
+				{
+					// For implicit conversion, we need to get the (implicitly) converted type of the expression
+
+					targetType = model.GetTypeInfo(operandExpr, cancellationToken).ConvertedType;
 				}
 
-				// Make sure to get the actual target type of the conversion.
-
-				if ((model.GetTypeInfo(node, cancellationToken).Type ?? model.GetTypeInfo(operandExpr, cancellationToken).ConvertedType) is not { } targetType)
+				if (targetType is null or IErrorTypeSymbol)
 				{
 					// Can this even fail? Well, it cannot hurt to be safe...
 
 					return document;
+				}
+
+				// For some pointer expressions in C#, parentheses are required.
+				// Since the operand expression is going to be passed as an argument to the constructor call, we don't need those parentheses anymore and can just replace them with the new expression as well.
+				
+				while (operandExpr is ParenthesizedExpressionSyntax parenthesizedExpr)
+				{
+					// For the operand expression, we walk down the expression tree to strip it of all unnecessary parentheses.
+
+					operandExpr = parenthesizedExpr.Expression;
+				}
+
+				while (node.Parent is ParenthesizedExpressionSyntax parenthesizedExpr)
+				{
+					// For the node to be replaced, we walk up the expression tree to find and replace everything up to the outermost unnecessary parentheses.
+
+					node = parenthesizedExpr;
 				}
 
 				var generator = SyntaxGenerator.GetGenerator(document);
