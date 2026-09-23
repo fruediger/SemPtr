@@ -4,8 +4,8 @@
   <PropertyGroup>
     
     <!-- Version information, shared by all projects -->
-    <VersionPrefix>0.7.1</VersionPrefix>
-    <!-- Uncomment and set suffix for prerelease versions: <VersionSuffix></VersionSuffix> -->
+    <VersionPrefix>0.8.0</VersionPrefix>
+    <VersionSuffix>alpha.1</VersionSuffix>
     
     <!-- License, copyright, and authorship information -->
     <PackageLicenseExpression>MIT</PackageLicenseExpression> <!-- Technically, this license information is just for the NuGet package, but it is also a good idea to share it as a MSBuild property with all projects. -->
