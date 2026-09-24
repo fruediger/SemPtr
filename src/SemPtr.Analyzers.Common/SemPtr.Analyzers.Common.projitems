@@ -3,16 +3,17 @@
   <PropertyGroup>
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>3ec8880f-a6a9-4901-b06f-c2552b9c1bb4</SharedGUID>
+    <SharedGUID>ce0e28e9-a7b6-46f5-8d23-1be3d18759d6</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>SemPtr.SourceGeneration</Import_RootNamespace>
+    <Import_RootNamespace>SemPtr.Analyzers</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Accessibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Config.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Conversion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConversionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FunctionPointerCharacteristics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPointerCharacteristics.cs" />
@@ -20,7 +21,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Persistency.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PointerCharacteristics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sequencability.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Index.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Range.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.IsExternalInit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System.Runtime.CompilerServices.RequiredMemberAttribute.cs" />

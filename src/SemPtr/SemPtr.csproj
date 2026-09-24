@@ -26,11 +26,24 @@
     <ProjectReference Include="..\SemPtr.SourceGeneration\SemPtr.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
+  <!-- Reference the shipped analyzers as dependency projects here, so they get build alongside the main library project, even though they are not directly consumed by the main library -->
+  <ItemGroup>
+    <ProjectReference Include="..\SemPtr.Analyzers\SemPtr.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" />
+    <ProjectReference Include="..\SemPtr.CodeFixProviders\SemPtr.CodeFixProviders.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" />
+    <ProjectReference Include="..\SemPtr.FunctionPointerGenerator\SemPtr.FunctionPointerGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" />    
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="../../assets/icon.png" Pack="true" PackagePath="" />
     <None Include="../../README.md" Pack="true" PackagePath="" />
-    <None Include="../../LICENSE.md" Pack="true" PackagePath="" /> <!-- It's always a good idea to include the license file in the NuGet package, even if PackageLicenseExpression is set instead. -->
-    <None Include="../SemPtr.FunctionPointerGenerator/bin/$(Configuration)/netstandard2.0/SemPtr.FunctionPointerGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" /> <!-- Don't forget to include the function pointer source generator that we want to ship with the NuGet package. -->
+    <None Include="../../LICENSE.md" Pack="true" PackagePath="" /> <!-- It's always a good idea to include the license file in the NuGet package, even if PackageLicenseExpression is set instead. -->    
+  </ItemGroup>
+
+  <!-- Don't forget to include the analyzers we want to ship in the NuGet package -->
+  <ItemGroup>
+    <None Include="../SemPtr.Analyzers/bin/$(Configuration)/netstandard2.0/SemPtr.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="../SemPtr.CodeFixProviders/bin/$(Configuration)/netstandard2.0/SemPtr.CodeFixProviders.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="../SemPtr.FunctionPointerGenerator/bin/$(Configuration)/netstandard2.0/SemPtr.FunctionPointerGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 
   <Import Project="..\SemPtr.Common\SemPtr.Common.projitems" Label="Shared" />

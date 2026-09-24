@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using SemPtr.Analyzers;
 using System.Text;
 
 namespace SemPtr.SourceGeneration;
@@ -170,7 +171,7 @@ partial class SourceGenerator
 						{
 							unsafe
 							{
-								return new(pointer.{{Config.GenerationRawPointerFieldName}});
+								return new(pointer.{{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 

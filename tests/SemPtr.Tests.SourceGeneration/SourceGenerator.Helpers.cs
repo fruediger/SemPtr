@@ -29,23 +29,23 @@ partial class SourceGenerator
 	private const string TestsNamespace = "SemPtr.Tests.Generated";
 
 	/// <summary>Gets the fully-qualified, closed generic (if applicable) type name for the given characteristics, e.g. <c>global::SemPtr.PersistentSequencePointer&lt;int&gt;</c>.</summary>
-	private static string QualifiedTypeName(in SemPtr.SourceGeneration.PointerCharacteristics characteristics)
-		=> $"global::{SemPtr.SourceGeneration.Config.PointerNamespaceName}.{characteristics.ToTypeName(TestTypeArgument)}";
+	private static string QualifiedTypeName(in Analyzers.PointerCharacteristics characteristics)
+		=> $"global::{SemPtr.Analyzers.Config.PointerNamespaceName}.{characteristics.ToTypeName(TestTypeArgument)}";
 
 	/// <summary>Gets the fully-qualified, closed generic (if applicable) type name for the given function pointer characteristics, e.g. <c>global::SemPtr.PersistentFunctionPointer&lt;TestDelegate&gt;</c>.</summary>
-	private static string QualifiedTypeName(in SemPtr.SourceGeneration.FunctionPointerCharacteristics characteristics)
-		=> $"global::{SemPtr.SourceGeneration.Config.PointerNamespaceName}.{characteristics.ToTypeName(TestDelegateTypeArgument)}";
+	private static string QualifiedTypeName(in Analyzers.FunctionPointerCharacteristics characteristics)
+		=> $"global::{SemPtr.Analyzers.Config.PointerNamespaceName}.{characteristics.ToTypeName(TestDelegateTypeArgument)}";
 
 	/// <summary>Gets the raw pointer C# type (<c>int*</c> or <c>void*</c>) for the given characteristics.</summary>
-	private static string RawPointerTypeName(in SemPtr.SourceGeneration.PointerCharacteristics characteristics)
-		=> characteristics.Typeability is SemPtr.SourceGeneration.Typeability.Typed ? $"{TestTypeArgument}*" : "void*";
+	private static string RawPointerTypeName(in Analyzers.PointerCharacteristics characteristics)
+		=> characteristics.Typeability is Analyzers.Typeability.Typed ? $"{TestTypeArgument}*" : "void*";
 
 	/// <summary>Gets a unique, identifier-safe name describing the given characteristics, suitable for use in file names, class names and method name fragments.</summary>
-	private static string SafeName(in SemPtr.SourceGeneration.PointerCharacteristics characteristics)
+	private static string SafeName(in Analyzers.PointerCharacteristics characteristics)
 		=> characteristics.ToFileNamePrefix(TestTypeArgument);
 
 	/// <summary>Gets a unique, identifier-safe name describing the given function pointer characteristics, suitable for use in file names, class names and method name fragments.</summary>
-	private static string SafeName(in SemPtr.SourceGeneration.FunctionPointerCharacteristics characteristics)
+	private static string SafeName(in Analyzers.FunctionPointerCharacteristics characteristics)
 		=> characteristics.ToFileNamePrefix(TestDelegateTypeArgument);
 
 	/// <summary>Appends the standard file header (disclaimer, nullable-enable, namespace, and imports) shared by all generated test files.</summary>

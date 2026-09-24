@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using SemPtr.Analyzers;
 using System.Text;
 
 namespace SemPtr.SourceGeneration;
@@ -23,6 +24,12 @@ partial class SourceGenerator
 		var fromTypeName = fromCharacteristics.ToTypeName();
 		var fromTypeNameCRef = fromCharacteristics.Typeability switch { Typeability.Typed => $"{fromCharacteristics.ToTypeNameWithoutTypeParameter()}{{{Config.GenerationTypeParameterName}}}", _ => fromTypeName };
 
+		var rawPointerType = fromCharacteristics switch
+		{
+			{ Typeability: Typeability.Typed } => $"{Config.GenerationTypeParameterName}*",
+			_ => "void*"
+		};
+
 		builder.Append($$"""
 			#nullable enable
 
@@ -31,8 +38,6 @@ partial class SourceGenerator
 			partial struct {{fromTypeName}}
 			{
 			""");
-
-		var conversionOperatorCounter = 0;
 
 		foreach (var toCharacteristics in PointerCharacteristics.Enumerate())
 		{
@@ -74,13 +79,11 @@ partial class SourceGenerator
 							{
 								unsafe
 								{
-									return new(unchecked(({{Config.GenerationTypeParameterName}}*)pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}));
+									return new(unchecked(({{Config.GenerationTypeParameterName}}*)pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 								}
 							}
 
 						""");
-
-					conversionOperatorCounter++;
 				}
 			}
 
@@ -100,13 +103,11 @@ partial class SourceGenerator
 						{
 							unsafe
 							{
-								return new(pointer.{{Config.GenerationRawPointerFieldName}});
+								return new(pointer.{{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 
 					""");
-
-				conversionOperatorCounter++;
 			}
 		}
 
@@ -149,13 +150,11 @@ partial class SourceGenerator
 								{
 									unsafe
 									{
-										return new(unchecked(({{Config.GenerationTypeParameterName}}*)pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}));
+										return new(unchecked(({{Config.GenerationTypeParameterName}}*)pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 									}
 								}
 
 							""");
-
-						conversionOperatorCounter++;
 					}
 
 					break;
@@ -182,16 +181,51 @@ partial class SourceGenerator
 						}
 
 					""");
-
-				conversionOperatorCounter++;
 			}
 		}
 
-		if (conversionOperatorCounter is 0)
+		builder.Append($$"""
+
+				/// <summary>
+				/// Converts a <paramref name="raw"/> pointer to a <see cref="{{fromTypeNameCRef}}"/>.
+				/// </summary>
+				/// <param name="raw">The raw pointer to convert.</param>
+				/// <returns>A <see cref="{{fromTypeNameCRef}}"/> that points to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as the specified <paramref name="raw"/> pointer.</returns>
+			""");
+
+		if (fromCharacteristics.Nullability is not Nullability.Nullable)
 		{
-			// We skip generating the source file if there are no conversion operators to generate; it would just be an empty partial type definition
-			return;
+			builder.Append($"""
+
+					/// <remarks>
+					/// <para>
+					/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
+					/// </para>
+					/// </remarks>
+					/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
+				""");
 		}
+
+		// A quick note on the semantic pointer to raw pointer conversion operator:
+		// It's deliberately declared as an explicit conversion operator, not only because this conversion (potentially) technically drops (semantic) information,
+		// but it's absolutely required to be declared as such, because of the overload resolution order of calls to the equality or comparison members of the pointer type.
+		// For example, we want an `Equals(null)` call to resolve to the `Equals(void*)` overload,
+		// not the `Equals(<same pointer type>)` overload (which would call the throwing constructor in case of non-nullable pointer types).
+
+		builder.Append($$"""
+
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static implicit operator {{fromTypeName}}({{rawPointerType}} raw) => new(raw);
+
+				/// <summary>
+				/// Converts a <see cref="{{fromTypeNameCRef}}"/> to a raw pointer.
+				/// </summary>
+				/// <param name="pointer">The <see cref="{{fromTypeNameCRef}}"/> to convert.</param>
+				/// <returns>A raw pointer that points to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as the specified <see cref="{{fromTypeNameCRef}}"/>.</returns>
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static explicit operator {{rawPointerType}}({{fromTypeName}} pointer) => pointer.{{Config.GenerationRawPointerFieldName}};
+
+			""");
 
 		builder.Append("""
 			}

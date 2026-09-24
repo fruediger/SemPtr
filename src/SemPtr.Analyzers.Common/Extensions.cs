@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SemPtr.SourceGeneration;
+namespace SemPtr.Analyzers;
 
 internal static class Extensions
 {

@@ -1,14 +1,16 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="SemPtr.Analyzers.Common/SemPtr.Analyzers.Common.shproj" Id="ce0e28e9-a7b6-46f5-8d23-1be3d18759d6" />
+    <Project Path="SemPtr.Analyzers/SemPtr.Analyzers.csproj" Id="842d3e34-4f02-41b8-a209-8ee90729be67" />
+    <Project Path="SemPtr.CodeFixProviders/SemPtr.CodeFixProviders.csproj" Id="2da745e1-7e86-4b1b-b025-7c9c78b052d3" />
     <Project Path="SemPtr.Common/SemPtr.Common.shproj" Id="a40228ce-b98f-4fae-bf77-d43fa227a66a" />
     <Project Path="SemPtr.FunctionPointerGenerator/SemPtr.FunctionPointerGenerator.csproj" Id="9bf70904-843f-4b91-88b2-9ff9f03568a3" />
-    <Project Path="SemPtr.SourceGeneration.Common/SemPtr.SourceGeneration.Common.shproj" Id="3ec8880f-a6a9-4901-b06f-c2552b9c1bb4" />
     <Project Path="SemPtr.SourceGeneration/SemPtr.SourceGeneration.csproj" Id="4c861368-da74-41e0-9f93-a063d99d6eed" />
     <Project Path="SemPtr/SemPtr.csproj" Id="e07d7a2e-5d23-42a0-af5f-d0dd48786491" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="../tests/SemPtr.AbiTests/SemPtr.AbiTests.csproj" Id="d0d7a8d4-6ce5-4e96-bab4-9c4cdced7fb6" />
     <Project Path="../tests/SemPtr.Tests.SourceGeneration/SemPtr.Tests.SourceGeneration.csproj" Id="f214b8ba-d991-4f4a-b28e-37f37f7cecf8" />
     <Project Path="../tests/SemPtr.Tests/SemPtr.Tests.csproj" Id="be4ef4cc-8dba-4854-8dc3-ddd57de6a52f" />
-    <Project Path="../tests/SemPtr.AbiTests/SemPtr.AbiTests.csproj" Id="d0d7a8d4-6ce5-4e96-bab4-9c4cdced7fb6" />
   </Folder>
 </Solution>

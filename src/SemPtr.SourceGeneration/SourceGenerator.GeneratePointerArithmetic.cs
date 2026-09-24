@@ -1,6 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using SemPtr.Analyzers;
 using System.Text;
+using Accessibility = SemPtr.Analyzers.Accessibility;
 
 namespace SemPtr.SourceGeneration;
 
@@ -73,7 +75,7 @@ partial class SourceGenerator
 					unsafe
 					{
 						var raw = value.{{Config.GenerationRawPointerFieldName}};
-						return new(++raw);
+						return new(++raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 
@@ -84,7 +86,7 @@ partial class SourceGenerator
 					unsafe
 					{
 						var raw = value.{{Config.GenerationRawPointerFieldName}};
-						return new(--raw);
+						return new(--raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 
@@ -95,7 +97,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} + right);
+						return new(left.{{Config.GenerationRawPointerFieldName}} + right, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 
@@ -105,7 +107,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} + right);
+						return new(left.{{Config.GenerationRawPointerFieldName}} + right, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 
@@ -116,7 +118,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left + right.{{Config.GenerationRawPointerFieldName}});
+						return new(left + right.{{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 			
@@ -126,7 +128,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left + right.{{Config.GenerationRawPointerFieldName}});
+						return new(left + right.{{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 
@@ -137,7 +139,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} - right);
+						return new(left.{{Config.GenerationRawPointerFieldName}} - right, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 			
@@ -147,7 +149,7 @@ partial class SourceGenerator
 				{
 					unsafe
 					{
-						return new(left.{{Config.GenerationRawPointerFieldName}} - right);
+						return new(left.{{Config.GenerationRawPointerFieldName}} - right, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 					}
 				}
 

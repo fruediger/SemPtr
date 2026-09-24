@@ -1,4 +1,4 @@
-namespace SemPtr.SourceGeneration;
+namespace SemPtr.Analyzers;
 
 internal enum Conversion
 {
