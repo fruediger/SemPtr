@@ -206,7 +206,7 @@ internal partial class SourceGenerator
 
 				/// <para>
 				/// You should never create instances of <see cref="{{typeNameCRef}}"/> using its parameterless constructors or <c><see langword="default"/>(<see cref="{{typeNameCRef}}"/>)</c>. Doing so will result in undefined behavior.
-				/// Always use the <see cref="{{Config.PointerInterfaceTypeFromRawMethodName}}({{rawPointerType}})"/>, <see cref="{{Config.PointerInterfaceTypeFromIntPtrMethodName}}(global::System.IntPtr)"/>, or <see cref="{{Config.PointerInterfaceTypeFromUIntPtrMethodName}}(global::System.UIntPtr)"/> methods to create instances of <see cref="{{typeNameCRef}}"/> pointers.
+				/// Always use the <see cref="{{typeNameCRef}}.{{typeNameWithoutTypeParameter}}({{rawPointerType}})"/> constructor, or the <see cref="{{Config.PointerInterfaceTypeFromIntPtrMethodName}}(global::System.IntPtr)"/> and <see cref="{{Config.PointerInterfaceTypeFromUIntPtrMethodName}}(global::System.UIntPtr)"/> methods to create instances of <see cref="{{typeNameCRef}}"/> pointers.
 				/// </para>
 				""");
 		}
