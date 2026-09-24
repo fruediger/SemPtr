@@ -10,9 +10,7 @@ It does this by *semantically naming* the pointer types it provides, categorizin
 [![Static Badge](https://img.shields.io/badge/Documentation-SemPtr-blue?link=https%3A%2F%2Ffruediger.github.io%2FSemPtr%2F)](https://fruediger.github.io/SemPtr)
 
 > [!TIP]
-> With the latest release, version 0.7.0, **SemPtr**'s pointer types can now finally be used in [`LibraryImport`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.libraryimportattribute) scenarios with much less hassle!
->
-> This is made possible because **SemPtr** now provides custom marshallers for each of its provided pointer types, including function pointers.
+> If you want to know what's new in the latest release, check out [CHANGELOG.md](https://github.com/fruediger/SemPtr/blob/main/CHANGELOG.md).
 
 ---
 
@@ -148,7 +146,7 @@ The naming scheme for individual function pointer types is as follows:
 One could assume that there should be more characteristics of function pointers, especially regarding the granularity of the target function's call signature.
 For example, specifying the calling convention of the target function.
 However, that is entirely handled by the `delegate` type used in the function pointer type.
-For example, you can specify the calling convention by annotating the `delegate` with an [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute), or, in the recommended way, by using [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96).\
+For example, you can specify the calling convention by annotating the `delegate` with an [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute), or, in the recommended way, by using [`FunctionPointerAttribute`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96).\
 See the [function pointer usage examples](#function-pointer-usage-examples) section for more information on how to use those attributes to configure the call signatures of function pointers and their target functions.
 
 ### What makes function pointers different from data pointers
@@ -160,14 +158,14 @@ While data pointers have their members (for example, `Target`, `Raw`, and `FromR
 *Typed* function pointers have their target function's signature specified by a `delegate` type argument passed as their generic `TDelegate` type parameter.\
 Therefore, their `Raw` and `FromRaw` members should have signatures based on the corresponding C# raw function pointer type, derived from the given `delegate` type argument.
 For example, a `[FunctionPointer(CallConvs = [typeof(CallConvCdecl)])] delegate void MyFunction(int x, int y)` definition should result in a `delegate* unmanaged[Cdecl]<int, int, void>` raw function pointer type used as the return type or parameter type of the `Raw`/`FromRaw` members.
-Not to mention the `Invoke` member, which not only has to take the original signature of the `delegate` type into account, but must also correctly call the target function based on the calling convention specified for the `delegate` type by attributes such as [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48).\
+Not to mention the `Invoke` member, which not only has to take the original signature of the `delegate` type into account, but must also correctly call the target function based on the calling convention specified for the `delegate` type by attributes such as [`FunctionPointerAttribute`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48).\
 Because of the nature of these requirements, this is not easily achievable in a "static" sense using C#'s type system alone.
 
 **SemPtr** solves this issue by shipping a source generator alongside the main library that handles it in a "dynamic" way by producing the correct members and their implementations as `extension` members at design time.\
 For that, the source generator scans the code for usages of `delegate`s and generates the correct `Raw`, `FromRaw`, and `Invoke` members for all function pointer types that use those `delegate`s.
 Users do not even have to do anything to make this work; it just works out of the box *(well, sometimes, depending on the development environment you use, you need to save the source file containing such a usage to trigger the source generator to run)*.\
 Sadly, this inherently comes with some performance implications at design time. That is why **SemPtr** allows you to specify exactly for which kinds of usages the source generator should generate the `extension` members, mitigating some of the performance drawbacks.
-See [`FunctionPointerGenerationAttribute`](src/SemPtr.Common/FunctionPointerGenerationAttribute.cs) for more information on how to configure the source generator.
+See [`FunctionPointerGenerationAttribute`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerGenerationAttribute.cs) for more information on how to configure the source generator.
 
 Users of the NuGet package do not have to do anything in particular to make all of this work, as the source generator is included in the NuGet package and is automatically installed when referencing the package.
 
@@ -381,7 +379,7 @@ var result = funcPtr.Invoke(1, 2);
 ##### Specifying the calling convention of the target function
 
 The following two examples show the recommended way of specifying the calling convention of the target function
-using [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96).
+using [`FunctionPointerAttribute`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96).
 
 ```csharp
 
@@ -398,7 +396,7 @@ var result = funcPtr.Invoke(1, 2);
 ```
 
 Sometimes, you might not control the definition of the `delegate` type and therefore cannot specify the calling convention with an attribute applied to the `delegate` type definition.
-For that case, you can use [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96) to specify the calling convention of the target function for a given `TDelegate` at assembly level.
+For that case, you can use [`FunctionPointerAttribute<TDelegate>`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96) to specify the calling convention of the target function for a given `TDelegate` at assembly level.
 
 ```csharp
 
@@ -419,7 +417,7 @@ var result = funcPtr.Invoke(1, 2);
 
 You can also use [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute) to specify the calling convention of the target function,
 although this is not the recommended way of doing so. This option exists primarily for existing `delegate` types that are already annotated with that attribute.\
-Note that specifying [`FunctionPointerAttribute`](src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96) for such a `delegate` type will override the calling convention specified by [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute).
+Note that specifying [`FunctionPointerAttribute`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L27-L48) or [`FunctionPointerAttribute<TDelegate>`](https://github.com/fruediger/SemPtr/blob/main/src/SemPtr.Common/FunctionPointerAttribute.cs#L74-L96) for such a `delegate` type will override the calling convention specified by [`UnmanagedFunctionPointerAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute).
 
 ```csharp
 
@@ -468,18 +466,18 @@ If you want to a more comprehensive understanding of **SemPtr** and its usage wi
 
 ## Building the project
 
-If you want to build the project or its documentation on your own, please refer to [BUILDING.md](BUILDING.md).
+If you want to build the project or its documentation on your own, please refer to [BUILDING.md](https://github.com/fruediger/SemPtr/blob/main/BUILDING.md).
 
 ## A note on AI usage
 
-In the spirit of transparency, and in line with the [contributing guidelines](CONTRIBUTING.md), here is an overview of how AI was used in this project:
+In the spirit of transparency, and in line with the [contributing guidelines](https://github.com/fruediger/SemPtr/blob/main/CONTRIBUTING.md), here is an overview of how AI was used in this project:
 
 - **Documentation.** AI was used to help write and improve documentation. The content itself comes from the author, but AI was used to clarify and clean up the writing.
-- **Infrastructural documents.** AI was used to help write project documents such as this [README.md](README.md), the [CONTRIBUTING.md](CONTRIBUTING.md), and the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). The contents were either written by the author and then improved by AI, or written by AI and then verified and approved by the author.
+- **Infrastructural documents.** AI was used to help write project documents such as this [README.md](https://github.com/fruediger/SemPtr/blob/main/README.md), the [CONTRIBUTING.md](https://github.com/fruediger/SemPtr/blob/main/CONTRIBUTING.md), and the [CODE_OF_CONDUCT.md](https://github.com/fruediger/SemPtr/blob/main/CODE_OF_CONDUCT.md). The contents were either written by the author and then improved by AI, or written by AI and then verified and approved by the author.
 - **Tests.** AI was used to help write some of the tests for the library, but the author has verified that all tests are correct and meaningful.
 - **Code review.** AI was used to review some of the author's code, and occasionally this turned out to be fruitful, catching bugs that might otherwise have been overlooked.
 - **Functional code.** No AI was used to write any functional code. All code in this project was written by the author.
 
 ## License
 
-SemPtr is licensed under the [MIT License](./LICENSE.md).
+SemPtr is licensed under the [MIT License](https://github.com/fruediger/SemPtr/blob/main/LICENSE.md).
