@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/fruediger/SemPtr/releases/tag/v0.8.0) - 2026-09-24
+
+Added raw pointer conversion support back for semantic data pointers.\
+Semantic data pointers now can be implicitly converted from raw pointer and explicitly converted to raw pointer.
+
+There's also a new public constructor on those types that accepts a raw pointer as an argument (which will replace the static `FromRaw` method on those types in the near future).
+
+In addition to that data pointer types also gained equality and comparison members (methods and operators) to compare against raw pointers. An involved overload resolution priority mechanism ensures that non-nullable semantic pointers can be safely *compared* against `null` values without risking a runtime exception being thrown.
+
+Lastly, since implicit conversion from raw pointers to non-nullable semantic pointers carries the risk of an exception being thrown if the raw pointer is `null`, there is now an additional static Roslyn analyzer shipped with the NuGet package that warns the user at compile time wherever such a conversion is used.\
+There's even an additional code fix provider shipped with the NuGet package that can replace such implicit conversions with an explicit call to the throwing constructor of the non-nullable  pointer type.
+
 ## [0.7.1](https://github.com/fruediger/SemPtr/releases/tag/v0.7.1) - 2026-09-14
 
 Annotated every custom marshaller type with `[EditorBrowsable(EditorBrowsableState.Never)]`, so they don't clutter IntelliSense for typical usage scenarios and they don't overwhelm the user with implementation details anymore.
