@@ -75,7 +75,7 @@ partial class SourceGenerator
 				/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same target as the given <paramref name="raw"/> pointer.</returns>
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe static {{typeName}} ConvertToManaged({{rawPointerType}} raw) => {{typeName}}.{{Config.PointerInterfaceTypeFromRawMethodName}}(raw);
+				public unsafe static {{typeName}} ConvertToManaged({{rawPointerType}} raw) => ({{typeName}})raw;
 			
 				/// <summary>
 				/// Converts a <see cref="{{typeNameCRef}}"/> to a raw pointer.
@@ -84,7 +84,7 @@ partial class SourceGenerator
 				/// <returns>A raw pointer that points to the same target as the given <paramref name="pointer"/>.</returns>
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe static {{rawPointerType}} ConvertToUnmanaged({{typeName}} pointer) => pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
+				public unsafe static {{rawPointerType}} ConvertToUnmanaged({{typeName}} pointer) => ({{rawPointerType}})pointer;
 			}
 
 			#nullable restore
