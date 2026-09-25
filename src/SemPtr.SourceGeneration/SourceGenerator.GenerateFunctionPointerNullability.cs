@@ -40,7 +40,7 @@ partial class SourceGenerator
 						{
 							unsafe
 							{
-								return new(null);
+								return new(null, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 					}
@@ -94,7 +94,7 @@ partial class SourceGenerator
 						{
 							if ({{Config.GenerationRawPointerFieldName}} is not null)
 							{
-								nonNullPointer = new({{Config.GenerationRawPointerFieldName}});
+								nonNullPointer = new({{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 								return true;
 							}
 

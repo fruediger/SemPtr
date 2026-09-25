@@ -128,7 +128,7 @@ partial class SourceGenerator
 
 				/// <para>
 				/// You should never create instances of <see cref="{{typeNameCRef}}"/> using its parameterless constructors or <c><see langword="default"/>(<see cref="{{typeNameCRef}}"/>)</c>. Doing so will result in undefined behavior.
-				/// Always use the {{characteristics.Typeability switch { Typeability.Typed => $"<see cref=\"{Config.FunctionPointerInterfaceFromDelegateMethodName}({Config.GenerationDelegateTypeParameterName}?)\"/>", _ => $"<see cref=\"{Config.PointerInterfaceTypeFromRawMethodName}(void*)\"/>" }}}, <see cref="{{Config.PointerInterfaceTypeFromIntPtrMethodName}}(global::System.IntPtr)"/>, or <see cref="{{Config.PointerInterfaceTypeFromUIntPtrMethodName}}(global::System.UIntPtr)"/> methods to create instances of <see cref="{{typeNameCRef}}"/> function pointers.
+				/// Always use the <see cref="{{typeNameCRef}}.{{typeNameWithoutTypeParameter}}(void*)"/> constructor, or <see cref="{{Config.PointerInterfaceTypeFromIntPtrMethodName}}(global::System.IntPtr)"/> and <see cref="{{Config.PointerInterfaceTypeFromUIntPtrMethodName}}(global::System.UIntPtr)"/> methods to create instances of <see cref="{{typeNameCRef}}"/> function pointers.
 				/// </para>
 				""");
 		}
@@ -158,17 +158,70 @@ partial class SourceGenerator
 				private unsafe readonly void* {{Config.GenerationRawPointerFieldName}};
 			
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				internal unsafe {{typeNameWithoutTypeParameter}}(void* raw) => {{Config.GenerationRawPointerFieldName}} = raw;
+			#pragma warning disable IDE0060 // `{{Config.GenerationUncheckedConstructorDispatchParameterName}}` is used to distinguish this internal constructor's signature from the signature of the public constructor that takes just a raw pointer
+				internal unsafe {{typeNameWithoutTypeParameter}}(void* raw, object? {{Config.GenerationUncheckedConstructorDispatchParameterName}}) => {{Config.GenerationRawPointerFieldName}} = raw;
+			#pragma warning restore IDE0060
 
 			""");
+
+		// The raw pointer accepting constructors for function pointers will always just accept a `void*` pointer, even in the case of typed function pointers, because we can't figure out the corresponding raw function pointer type based on the delegate type argument at compile time.
+		// However, there will be a static Roslyn analyzer shipped with the NuGet in the `SemPtr.Analyzers` assembly that will dynamically analyze the actually required raw function pointer type and whether the user passes an argument of the correct type to the constructor,
+		// and will report an error diagnostic if not.
 
 		if (characteristics.Nullability is not Nullability.Nullable)
 		{
 			builder.Append($$"""
 
+					/// <summary>
+					/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
+					/// </summary>
+					/// <param name="raw">The raw pointer specifying the target function that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
+					/// <remarks>
+					/// <para>
+					/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
+					/// </para>
+					/// <para>
+					/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same target function as <paramref name="raw"/>.
+					/// </para>
+					/// </remarks>
+					/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					public unsafe {{typeNameWithoutTypeParameter}}(void* raw) : this(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default)
+					{
+						if (raw is null)
+						{
+							[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]
+							static void failRawArgumentNull() => throw new global::System.ArgumentNullException(nameof(raw));
+				
+							failRawArgumentNull();
+						}
+					}
+
 					/// <summary>Do not use. Do not create instances of non-nullable function pointers using parameterless constructors or default values.</summary>
 					[global::System.Obsolete("Do not use. Do not create instances of non-nullable function pointers using parameterless constructors or default values.", error: true)]
 					public {{typeNameWithoutTypeParameter}}() { }
+
+				""");
+		}
+		else
+		{
+			builder.Append($$"""
+
+					/// <summary>
+					/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
+					/// </summary>
+					/// <param name="raw">The raw pointer specifying the target function that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
+					/// <remarks>
+					/// <para>
+					/// The <paramref name="raw"/> pointer may be <c><see langword="null"/></c>. If it is, the resulting <see cref="{{typeNameCRef}}"/> will represent a null pointer.
+					/// </para>
+					/// <para>
+					/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same target function as <paramref name="raw"/>.
+					/// </para>
+					/// </remarks>
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					public unsafe {{typeNameWithoutTypeParameter}}(void* raw) : this(raw, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default)
+					{ }
 
 				""");
 		}
@@ -254,90 +307,61 @@ partial class SourceGenerator
 				builder.Append($$"""
 
 						/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
-						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-						unsafe static {{typeName}} {{Config.PointerInterfaceTypeName}}<{{typeName}}>.{{Config.PointerInterfaceTypeFromRawMethodName}}(void* raw)
-						{
-							if (raw is null)
-							{
-								[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]
-								static void failRawArgumentNull() => throw new global::System.ArgumentNullException(nameof(raw));
-
-								failRawArgumentNull();
-							}
-
-							return new(raw);
-						}
-
 					""");
 			}
-			else
-			{
-				builder.Append($$"""
 
-						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-						unsafe static {{typeName}} {{Config.PointerInterfaceTypeName}}<{{typeName}}>.{{Config.PointerInterfaceTypeFromRawMethodName}}(void* raw) => new(raw);
+			builder.Append($$"""
 
-					""");
-			}
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					unsafe static {{typeName}} {{Config.PointerInterfaceTypeName}}<{{typeName}}>.{{Config.PointerInterfaceTypeFromRawMethodName}}(void* raw) => new(raw);
+
+				""");
 		}
 		else
 		{
+			builder.Append($$"""
+
+					/// <summary>
+					/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
+					/// </summary>
+					/// <param name="raw">The raw pointer specifying the target function that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
+					/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same target function as the specified <paramref name="raw"/> pointer.</returns>
+					/// <remarks>
+				""");
+
 			if (characteristics.Nullability is not Nullability.Nullable)
 			{
 				builder.Append($$"""
-
-						/// <summary>
-						/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
-						/// </summary>
-						/// <param name="raw">The raw pointer specifying the target function that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
-						/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same target function as the specified <paramref name="raw"/> pointer.</returns>
-						/// <remarks>
+						
 						/// <para>
 						/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
 						/// </para>
 						/// <para>
 						/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same target function as <paramref name="raw"/>.
 						/// </para>
-						/// </remarks>
-						/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
-						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-						public unsafe static {{typeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}(void* raw)
-						{
-							if (raw is null)
-							{
-								[global::System.Diagnostics.CodeAnalysis.DoesNotReturn]
-								static void failRawArgumentNull() => throw new global::System.ArgumentNullException(nameof(raw));
-
-								failRawArgumentNull();
-							}
-
-							return new(raw);
-						}
-
 					""");
 			}
 			else
 			{
 				builder.Append($$"""
 
-						/// <summary>
-						/// Creates a <see cref="{{typeNameCRef}}"/> from a <paramref name="raw"/> pointer.
-						/// </summary>
-						/// <param name="raw">The raw pointer specifying the target function that the resulting <see cref="{{typeNameCRef}}"/> will point to.</param>
-						/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same target function as the specified <paramref name="raw"/> pointer.</returns>
-						/// <remarks>
 						/// <para>
 						/// The <paramref name="raw"/> pointer may be <c><see langword="null"/></c>. If it is, the resulting <see cref="{{typeNameCRef}}"/> will represent a null pointer.
 						/// </para>
 						/// <para>
 						/// The resulting <see cref="{{typeNameCRef}}"/> will point to the same target function as <paramref name="raw"/>.
 						/// </para>
-						/// </remarks>
-						[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-						public unsafe static {{typeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}(void* raw) => new(raw);
-
 					""");
 			}
+
+			builder.Append($$"""
+					
+					/// </remarks>
+					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+					public unsafe static {{typeName}} {{Config.PointerInterfaceTypeFromRawMethodName}}(void* raw)
+						=> new(raw);
+
+				""");
 		}
 
 		if (characteristics.Nullability is not Nullability.Nullable)
@@ -369,7 +393,7 @@ partial class SourceGenerator
 								failValueArgumentNull();
 							}
 				
-							return new(unchecked((void*)value));
+							return new(unchecked((void*)value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 				
@@ -397,7 +421,7 @@ partial class SourceGenerator
 								failValueArgumentNull();
 							}
 				
-							return new(unchecked((void*)value));
+							return new(unchecked((void*)value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 
@@ -418,7 +442,7 @@ partial class SourceGenerator
 					{
 						unsafe
 						{				
-							return new(unchecked((void*)value));
+							return new(unchecked((void*)value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 				
@@ -432,7 +456,7 @@ partial class SourceGenerator
 					{
 						unsafe
 						{				
-							return new(unchecked((void*)value));
+							return new(unchecked((void*)value), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 						}
 					}
 
@@ -471,7 +495,7 @@ partial class SourceGenerator
 									failDelegateArgumentNull();
 								}
 
-								return new(unchecked((void*)global::System.Runtime.InteropServices.Marshal.GetFunctionPointerForDelegate(@delegate)));
+								return new(unchecked((void*)global::System.Runtime.InteropServices.Marshal.GetFunctionPointerForDelegate(@delegate)), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 
@@ -527,7 +551,7 @@ partial class SourceGenerator
 									return Null;
 								}
 
-								return new(unchecked((void*)global::System.Runtime.InteropServices.Marshal.GetFunctionPointerForDelegate(@delegate)));
+								return new(unchecked((void*)global::System.Runtime.InteropServices.Marshal.GetFunctionPointerForDelegate(@delegate)), {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 

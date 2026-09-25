@@ -26,8 +26,6 @@ partial class SourceGenerator
 			{
 			""");
 
-		var conversionOperatorCounter = 0;
-
 		foreach (var toCharacteristics in FunctionPointerCharacteristics.Enumerate())
 		{
 			if (fromCharacteristics == toCharacteristics)
@@ -68,13 +66,11 @@ partial class SourceGenerator
 							{
 								unsafe
 								{
-									return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}});
+									return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 								}
 							}
 
 						""");
-
-					conversionOperatorCounter++;
 				}
 			}
 
@@ -94,13 +90,11 @@ partial class SourceGenerator
 						{
 							unsafe
 							{
-								return new(pointer.{{Config.GenerationRawPointerFieldName}});
+								return new(pointer.{{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 
 					""");
-
-				conversionOperatorCounter++;
 			}
 		}
 
@@ -143,13 +137,11 @@ partial class SourceGenerator
 								{
 									unsafe
 									{
-										return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}});
+										return new(pointer.{{Config.PointerInterfaceTypeRawPointerPropertyName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 									}
 								}
 
 							""");
-
-						conversionOperatorCounter++;
 					}
 
 					break;
@@ -176,18 +168,47 @@ partial class SourceGenerator
 						}
 
 					""");
-
-				conversionOperatorCounter++;
 			}
 		}
 
-		if (conversionOperatorCounter is 0)
+		builder.Append($$"""
+
+				/// <summary>
+				/// Converts a <paramref name="raw"/> pointer to a <see cref="{{fromTypeNameCRef}}"/>.
+				/// </summary>
+				/// <param name="raw">The raw pointer to convert.</param>
+				/// <returns>A <see cref="{{fromTypeNameCRef}}"/> that points to the same target function as the specified <paramref name="raw"/> pointer.</returns>
+			""");
+
+		if (fromCharacteristics.Nullability is not Nullability.Nullable)
 		{
-			// We skip generating the source file if there are no conversion operators to generate; it would just be an empty partial type definition
-			return;
+			builder.Append($"""
+
+					/// <remarks>
+					/// <para>
+					/// The <paramref name="raw"/> pointer must not be <c><see langword="null"/></c>. If it is, an <see cref="global::System.ArgumentNullException"/> will be thrown.
+					/// </para>
+					/// </remarks>
+					/// <exception cref="global::System.ArgumentNullException"><paramref name="raw"/> is <c><see langword="null"/></c></exception>
+				""");
 		}
 
-		builder.Append("""
+		// See the comment in `SourceGenerator.GeneratePointerConversions.cs` for a brief explanation on why the conversion operator that converts TO a raw pointer must be declared `explicit`.
+		// See the comment in `SourceGenerator.GenerateFunctionPointerDeclaration.cs` for the reason why we only provide `void*` pointer conversions, regardless of whether the function pointer type is typed or untyped.
+		// For that, the same reasoning applies as for the comment mentioned above: There will be a shipped Roslyn analyzer checking the actual raw function pointer source/target type of the conversion, and erroring out if the conversion would be invalid.
+
+		builder.Append($$"""
+			
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static implicit operator {{fromTypeName}}(void* raw) => new(raw);
+			
+				/// <summary>
+				/// Converts a <see cref="{{fromTypeNameCRef}}"/> to a raw pointer.
+				/// </summary>
+				/// <param name="pointer">The <see cref="{{fromTypeNameCRef}}"/> to convert.</param>
+				/// <returns>A raw pointer that points to the same target function as the specified <see cref="{{fromTypeNameCRef}}"/>.</returns>
+				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+				public unsafe static explicit operator void*({{fromTypeName}} pointer) => pointer.{{Config.GenerationRawPointerFieldName}};
 			}
 
 			#nullable restore

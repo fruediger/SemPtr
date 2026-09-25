@@ -77,15 +77,7 @@ partial class SourceGenerator
 				/// <returns>A <see cref="{{typeNameCRef}}"/> that points to the same target function as the given <paramref name="raw"/> function pointer.</returns>
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe static {{typeName}} ConvertToManaged(void* raw)
-				{
-					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					static TPointer fromRaw<TPointer>(void* raw)
-						where TPointer : unmanaged, {{Config.PointerInterfaceTypeName}}<TPointer>{{characteristics.Persistency switch { not Persistency.Persistent => ", allows ref struct", _ => string.Empty }}}
-						=> TPointer.{{Config.PointerInterfaceTypeFromRawMethodName}}(raw);
-
-					return fromRaw<{{typeName}}>(raw);
-				}
+				public unsafe static {{typeName}} ConvertToManaged(void* raw) => ({{typeName}})raw;
 			
 				/// <summary>
 				/// Converts a <see cref="{{typeNameCRef}}"/> to a raw function pointer.
@@ -94,15 +86,7 @@ partial class SourceGenerator
 				/// <returns>A raw function pointer that points to the same target function as the given <paramref name="pointer"/>.</returns>
 				[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-				public unsafe static void* ConvertToUnmanaged({{typeName}} pointer)
-				{
-					[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
-					static void* getRaw<TPointer>(TPointer {{Config.GenerationExtensionArgumentName}})
-						where TPointer : unmanaged, {{Config.PointerInterfaceTypeName}}{{characteristics.Persistency switch { not Persistency.Persistent => ", allows ref struct", _ => string.Empty }}}
-						=> {{Config.GenerationExtensionArgumentName}}.{{Config.PointerInterfaceTypeRawPointerPropertyName}};
-
-					return getRaw(pointer);
-				}
+				public unsafe static void* ConvertToUnmanaged({{typeName}} pointer) => (void*)pointer;
 			}
 
 			#nullable restore
