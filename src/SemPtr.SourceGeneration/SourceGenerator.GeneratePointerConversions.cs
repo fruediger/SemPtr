@@ -176,7 +176,7 @@ partial class SourceGenerator
 						{
 							unsafe
 							{
-								return new(pointer.{{Config.GenerationRawPointerFieldName}});
+								return new(pointer.{{Config.GenerationRawPointerFieldName}}, {{Config.GenerationUncheckedConstructorDispatchParameterName}}: default);
 							}
 						}
 
@@ -224,10 +224,6 @@ partial class SourceGenerator
 				/// <returns>A raw pointer that points to the same {{characteristics.Sequencability switch { Sequencability.Sequence => "contiguous target sequence", _ => "target" }}} as the specified <see cref="{{fromTypeNameCRef}}"/>.</returns>
 				[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining | global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
 				public unsafe static explicit operator {{rawPointerType}}({{fromTypeName}} pointer) => pointer.{{Config.GenerationRawPointerFieldName}};
-
-			""");
-
-		builder.Append("""
 			}
 
 			#nullable restore
