@@ -36,6 +36,9 @@ internal sealed class NonNullablePointerImplicitConversionAnalyzer : DiagnosticA
 		{
 			var pointerConversions = PointerCharacteristics.Enumerate(nullability: Nullability.NonNull)
 				.Select(characteristic => csac.Compilation.GetTypeByMetadataName($"{Config.PointerNamespaceName}.{characteristic.ToMetadataName()}")?.OriginalDefinition!)
+				.Concat(FunctionPointerCharacteristics.Enumerate(nullability: Nullability.NonNull)
+					.Select(characteristic => csac.Compilation.GetTypeByMetadataName($"{Config.PointerNamespaceName}.{characteristic.ToMetadataName()}")?.OriginalDefinition!)
+				)
 				.Where(static type => type is not null)
 				.Select(static type =>
 				(
